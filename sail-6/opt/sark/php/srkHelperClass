@@ -324,7 +324,7 @@ public function displayRouteClass($var) {
 						if (preg_match (" /^;/ ", $row)) {
 							continue;
 						}
-						if (preg_match (" /^conf\s*=>\s*(\d{3,4})/ ",$row,$matches)) {
+						if (preg_match (" /^conf\s*=>\s*(\d{3,5})/ ",$row,$matches)) {
 							$conferences[$matches[1]]=$matches[1];
 						}		
 					}

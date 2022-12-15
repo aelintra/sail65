@@ -581,7 +581,7 @@ private function genVmail() {
 			$line = trim ($line);
 			if (!preg_match(" /^;.*/",$line)) {
 				$line = preg_replace( '/\s+/', ' ', $line );
-				if (preg_match(" /^(\d{3,4})\s*=>\s*((\d*)?),/",$line,$matches)) {			
+				if (preg_match(" /^(\d{3,5})\s*=>\s*((\d*)?),/",$line,$matches)) {			
 					$mailbox[$matches[1]]['password'] = $matches[2];
 				}
 				$parts = explode('=>',$line);
@@ -1537,7 +1537,7 @@ private function meetMe(&$OUT,$dbh) {
 		$conferences = array(); 
 			foreach ($rec as $line) {
 			if (!preg_match(' /^\s*;/ ',$line)) {   
-				if (preg_match(' /conf\s*=>?\s*(\d{3,4})/ ',$line,$matches)) {
+				if (preg_match(' /conf\s*=>?\s*(\d{3,5})/ ',$line,$matches)) {
 					array_push($conferences, $matches[1]);
 				}
 			} 	

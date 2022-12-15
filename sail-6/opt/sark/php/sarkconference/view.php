@@ -145,7 +145,7 @@ private function showMain() {
 		else {
 			$statusrow = `sudo /usr/sbin/asterisk -rx 'confbridge list' | grep $search`;
 			if ($statusrow) {
-				$numusers = preg_match(' /^\d{3,4}\s*(\d{1,2})/ ',$statusrow,$matches);
+				$numusers = preg_match(' /^\d{3,5}\s*(\d{1,2})/ ',$statusrow,$matches);
 				$status = $matches[1] . " users";
 			}			
 		}

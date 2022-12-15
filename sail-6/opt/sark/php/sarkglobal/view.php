@@ -375,8 +375,8 @@ private function saveEdit() {
    $this->validator->addValidation("extlen","lt=6","Extension Length must be 3 to 5");    
    $this->validator->addValidation("sipiaxstart","req","Extension start must be entered");
    $this->validator->addValidation("sipiaxstart","num","Extension start must be numeric");
-   $this->validator->addValidation("sipiaxstart","maxlen=5","Extension start must be 3 to 5 digits (same as extension length)"); 
-	$this->validator->addValidation("sipiaxstart","minlen=3","Extension start must be 3 to 5 digits (same as extension length)");	   
+   $this->validator->addValidation("sipiaxstart","maxlen=5","Extension start must be 3 to 5 digits (and same as extension length)"); 
+	$this->validator->addValidation("sipiaxstart","minlen=3","Extension start must be 3 to 5 digits (and same as extension length)");	   
    $this->validator->addValidation("agentstart","num","Agent start must be numeric");
    $this->validator->addValidation("agentstart","maxlen=4","Agent start must be 4 digits");
    $this->validator->addValidation("agentstart","minlen=4","Agent start must be 4 digits");    

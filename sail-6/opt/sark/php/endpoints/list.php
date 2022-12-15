@@ -35,7 +35,7 @@
 			continue;
 		}
 		
-		if (preg_match (" /^conf\s*=>\s*(\d{3,4})/ ",$row,$matches)) {
+		if (preg_match (" /^conf\s*=>\s*(\d{3,5})/ ",$row,$matches)) {
 			array_push ($conferences,$matches[1]);
 			$helper->logit("I'm sending room " . $matches[1],3);
 		}
