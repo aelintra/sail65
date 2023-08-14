@@ -1,11 +1,16 @@
 #!/bin/sh
-# get a list of macs amd manufacturers
-# curl —-max-time 60 -L -s "https://code.wireshark.org/review/gitweb?p=wireshark.git;a=blob_plain;f=manuf;hb=HEAD" > /tmp/manuf.txt
+# get a list of macs amd manufacturers from IEEE
 # 
 
 [ ! -e /opt/sark/www/sark-common/manuf.txt ]  && touch /opt/sark/www/sark-common/manuf.txt
 chown www-data:www-data /opt/sark/www/sark-common/manuf.txt
-curl -L -s "https://gitlab.com/wireshark/wireshark/-/raw/master/manuf" > /tmp/manuf.txt
+curl -L -s "http://www.sailpbx.com/sail/public/manuf.txt" > /tmp/manuf.txt
+ret=$?
+if test "$ret" != "0"; then
+     logger SARKgetmaclist - **** Link fail - Could not fetch new manufacturer MAC DB ****
+     exit 4
+fi   
+
 if [ -s /tmp/manuf.txt ]; then
         diff /opt/sark/www/sark-common/manuf.txt /tmp/manuf.txt
         if [  "$?" -ne "0" ] ; then

@@ -1986,8 +1986,7 @@ private function getVendorFromMac($mac) {
 		$findmac = $matches[1] . ':' . $matches[2] . ':' . $matches[3];
 		$this->helper->logit("GETV findmac is $findmac  ",5 );
 		$vendorline = `grep -i $findmac /opt/sark/www/sark-common/manuf.txt`;
-		$delim="\t";
-		$short_vendor_cols = explode($delim,$vendorline,3);
+		$short_vendor_cols = preg_split('/\s+/',$vendorline,3);
 		if ( ! empty($short_vendor_cols[1]) ) {
 			$short_vendor = $short_vendor_cols[1];
 		}
