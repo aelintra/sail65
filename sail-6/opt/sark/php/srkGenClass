@@ -61,7 +61,6 @@ public function genAsterisk() {
     $this->genPjsipPhones();
     $this->genPjsipWebrtc();
     $this->genPjsipTrunks();
-    $this->genConferences();
     $this->genQueues();
     $this->genFeatures();
     $this->genVmail();
@@ -465,33 +464,6 @@ private function xlatePjsipBuff(&$buffer,$row) {
 	}	
 	return True;			
 }
-
-private function genConferences() {
-//
-//  generate the meetme conferences.  Later ConfBridge needs no gen
-//
-	$OUT = $this->genFileBanner(); 
-	$result = $this->helper->getTable("meetme",null,false);	 
-
-    foreach ($result as $row) {
-		$line = 'conf => ' . $row['pkey'] . ',';        
-		if ($row['pin']) {
-			$line .= $row['pin'];
-		}
-		if ($row['adminpin']) {
-			$line .= ',' . $row['adminpin'];
-		}
-		$line = rtrim($line, ',');
-		$OUT .= $line . "\n"; 
-	}
-// write the generated include file 
-	$fh = fopen("/etc/asterisk/sark_meetme.conf", 'w') or die('Could not open file!');
-	fwrite($fh,$OUT) or die('Could not write to file');
-	fclose($fh); 
-}  
-
-
-
 
 private function genQueues() {
 
@@ -1104,17 +1076,9 @@ try {
     	$OUT .= "\texten => _[*#0-9]!,1,agi(sarkhpe,OutCluster,\${EXTEN},,)\n";
 /*
  * Conferences
- * There are two types; the pre Ast11 MeetMe and the post ConfBridge
- * We will use the correct one for the release
- * 
  */  
 	$OUT .= "\n[conferences]\n";	
-	if ($vers < 11) {
-		$this->meetMe($OUT,$this->dbh);
-	}
-	else {
-		$this->confBridge($OUT,$this->dbh);
-	}
+	$this->confBridge($OUT,$this->dbh);
 	   
 //
 //  begin mainmenu (inbound context) 
@@ -1528,49 +1492,6 @@ catch(PDOException $e) {
 
 }
 
-private function meetMe(&$OUT,$dbh) {
-/*
- * conventional conferences in meetme -> these cannot be managed
- */
-		$file = '/etc/asterisk/meetme.conf' or die('Could not read file!');
-		$rec = file($file) or die('Could not read file!');
-		$conferences = array(); 
-			foreach ($rec as $line) {
-			if (!preg_match(' /^\s*;/ ',$line)) {   
-				if (preg_match(' /conf\s*=>?\s*(\d{3,5})/ ',$line,$matches)) {
-					array_push($conferences, $matches[1]);
-				}
-			} 	
-		}
-	foreach ($conferences as $conf) {
-		if ($this->globals['CONFTYPE'] == "simple" ) {
-			$OUT .= "\texten => $conf,1,Meetme($conf,Mp)\n";
-		}
-		else {
-			$OUT .= "\texten => $conf,1,Meetme($conf,MpI)\n";
-		}
-		$OUT .= "\texten => $conf,hint,Meetme:$conf\n";
-	}	
-
-/*
- * 4.0.1 browser managed conferences
- */
-	$sql = "SELECT * FROM meetme ORDER BY pkey";
-	$qRes = $this->dbh->query($sql);
-	$meetme = $qRes->fetchAll();
-	$qRes = NULL;
-
-	foreach ($meetme as $room) { 
-		if ($room['type'] == "simple" ) {
-			$OUT .= "\texten => " . $room['pkey'] . ",1,Meetme(" . $room['pkey'] . ",Mp)\n";
-		}
-		else {
-			$OUT .= "\texten => " . $room['pkey'] . ",1,Meetme(" . $room['pkey'] . ",MpI)\n";
-		}
-		$OUT .= "\texten => " . $room['pkey'] . ",hint,Meetme:" . $room['pkey'] . "\n";
-	}	   		
-	
-}
 
 private function confBridge(&$OUT,$dbh) {
 	
