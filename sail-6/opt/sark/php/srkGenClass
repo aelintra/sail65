@@ -57,6 +57,7 @@ public function genAsterisk() {
     $this->genExtensions();
     $this->genMoh();
     $this->genIax();
+	$this->genPjsipConf();
     $this->genPjsipTransport();
     $this->genPjsipPhones();
     $this->genPjsipWebrtc();
@@ -222,7 +223,7 @@ private function genIax() {
 	fclose($fh);
 
 	$fh = fopen("/etc/asterisk/iax.conf", 'w') or die('Could not open file!');
-// write the voicemail Master file
+// write the IAX Master file
 
     $OUT = $this->genFileBanner();
 	fwrite($fh, $OUT. " \n" .
@@ -234,6 +235,14 @@ private function genIax() {
 				"#include sark_customer_iax_main.conf  \n") 
 		or die('Could not write to file IAXincludes');
 	fclose($fh); 
+}
+
+private function genPjsipConf() {
+
+// remove the old sark includes (if present)
+	$rc = $this->helper->request_syscmd ("/usr/bin/sed -i '/include sark_pjsip/d' PJSIP_CONF >/dev/null 2>&1");
+// append the current ones
+	$rc = $this->helper->request_syscmd ("/usr/bin/cat PJSIP_INCLUDES >> PJSIP_CONF");	
 }
 
 private function genPjsipTransport() {

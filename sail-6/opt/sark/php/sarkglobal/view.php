@@ -308,7 +308,7 @@ private function showMain() {
 		$this->myPanel->displayInputFor('ldapbase','text',$global['LDAPBASE']);
 		$this->myPanel->displayInputFor('ldapou','text',$global['LDAPOU']);
 		$this->myPanel->displayInputFor('ldapuser','text',$global['LDAPUSER']);
-		$this->myPanel->displayInputFor('ldappass','password',$global['LDAPPASS']);
+		$this->myPanel->displayInputFor('ldappass','text',$global['LDAPPASS']);
 		echo '</div>';
 	}
 

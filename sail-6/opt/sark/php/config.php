@@ -24,6 +24,9 @@ define('ROOTDIR',                       '/opt/sark/db');
  * PJSIP
  */
 
+define('PJSIP_CONF', 					'/etc/asterisk/pjsip.conf');
+define('PJSIP_INCLUDES', 				'/etc/asterisk/sark_pjsip.conf');
+
 define('PJSIP', 						'/etc/asterisk/sark_pjsip_');
 define('PJSIP_ANONYMOUS',				'anonymous.conf');
 define('PJSIP_GLOBALS', 				'globals.conf');
