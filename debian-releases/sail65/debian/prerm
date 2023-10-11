@@ -1,5 +1,5 @@
 #!/bin/bash
-exit
+
 sv d srk-ua-responder
 sv d srk-ua-helper
 
