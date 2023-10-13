@@ -110,8 +110,8 @@ private function showMain() {
 	$this->myPanel->aHeaderFor('sclose');
 	$this->myPanel->aHeaderFor('eclose');
 	$this->myPanel->aHeaderFor('weekday',false,'w3-hide-small');
-	$this->myPanel->aHeaderFor('datemonth',false,'w3-hide-small');
-	$this->myPanel->aHeaderFor('month',false,'w3-hide-small');
+//	$this->myPanel->aHeaderFor('datemonth',false,'w3-hide-small');
+//	$this->myPanel->aHeaderFor('month',false,'w3-hide-small');
 	$this->myPanel->aHeaderFor('description',false,'w3-hide-small');
 	$this->myPanel->aHeaderFor('state');
 	$this->myPanel->aHeaderFor('ed');		

@@ -555,9 +555,9 @@ function logIt($someText,$userloglevel=0) {
   		if (isset($_SERVER["REMOTE_ADDR"])) {
   			syslog(LOG_WARNING, $_SERVER["REMOTE_ADDR"] . " " . $someText . "\n");
   		}
-//  		else {
-//  			syslog(LOG_WARNING, "BATCH PROVGEN " . $someText . "\n");
-//  		}	
+  		else {
+  			syslog(LOG_WARNING, "BATCH PROVGEN " . $someText . "\n");
+  		}	
 	}
 }
 

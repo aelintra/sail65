@@ -26,38 +26,27 @@ Class sarkshell {
 	protected $dbh;
 	protected $helper;
 	
-public function showForm() {
+	public function showForm() {
 
-	$this->myPanel = new page;
-	$this->dbh = DB::getInstance();
-	$this->helper = new helper;
-	$buttonArray=array();
-
-	$this->myPanel->actionBar($buttonArray,"sarkshellForm",false,false,false);
-	if ($this->invalidForm) {
-		$this->myPanel->showErrors($this->error_hash);
-	}
-	$this->myPanel->Heading($this->head,$this->message);
-
-	$this->myPanel->responsiveSetup();
-
-//	echo '<form id="sarkshellForm" action="' . $_SERVER['PHP_SELF'] . '" method="post">' . PHP_EOL;
-
-
-
-/*
- *  Start the iFrame
- */
-	echo '<div class="w3-container w3-paddingw3-margin-right">';
-	echo '<iframe class="w3-margin-right w3-card-4 w3-white" id="shellframe" scrolling="no" src="/console" style="height:40em;width:100%;" ></iframe>' . PHP_EOL;
-	echo '</div>';
-/*
- * done
- */	
-//	echo '</form>';
-	$this->myPanel->responsiveClose();	
-
-	return;
+		$this->myPanel = new page;
+		$this->dbh = DB::getInstance();
+		$this->helper = new helper;
+		$buttonArray=array();
+		$this->myPanel->actionBar($buttonArray,"sarkshellForm",false,false,false);
+		$this->myPanel->Heading($this->head,null);
+		$this->myPanel->responsiveSetup();
 	
-}
+	/*
+	 *  Start the iFrame
+	 */
+		echo '<div class="w3-container w3-paddingw3-margin-right">';
+		echo '<iframe class="w3-margin-right w3-card-4 w3-white" id="shellframe" scrolling="no" src="/console" style="height:40em;width:100%;" ></iframe>' . PHP_EOL;
+		echo '</div>';
+	/*
+	 * done
+	 */	
+		$this->myPanel->responsiveClose();	
+		return;
+		
+	}
 }

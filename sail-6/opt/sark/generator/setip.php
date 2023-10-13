@@ -19,6 +19,21 @@ include("/opt/sark/php/srkNetHelperClass");
 
 $net = new nethelper();
 
+
+$ip = $net->get_localIPV4();
+$sleep = 0;
+
+while (empty($ip)) {
+	logit  ("waiting for network - retry in $sleep seconds");
+	sleep ($sleep);
+	unset ($net);
+	$net = new nethelper();
+	$ip = $net->get_localIPV4();
+	if ($sleep < 30) {
+		$sleep = $sleep + 5;
+	}
+}
+
 $interface = $net->get_interfaceName();
 $netaddress = $net->get_networkIPV4();
 $cidr = $net->get_networkCIDR();
@@ -45,8 +60,8 @@ $Phonelist = array ('aastra'=>'aastra',
 					
 $f2b_target = '/etc/fail2ban/jail.conf';
 
-if ($netaddress == '0.0.0.0') {
-	print "No IP from ifconfig  - got $netaddress \n";
+if ($netaddress == '0.0.0.0' || empty($netaddress)) {
+	logit ("!!!!!!!!! No IP returned from ip a !!!!!!!!!!  - check network cable");
 }
 else {
 	if ($staticIPV4) {
@@ -68,6 +83,12 @@ else {
 		`sed -i 's/^;dateformat=%F %T /dateformat=%F %T/' /etc/asterisk/logger.conf`;
 		`sed -i '/^messages/c \messages => security,notice,warning,error' /etc/asterisk/logger.conf`;
 		# set localnet values for Asterisk
+		`[ -e /etc/asterisk/sark_sip_localnet.conf ] && /usr/bin/dos2unix /etc/asterisk/sark_sip_localnet.conf`;
+		`echo localnet=$netaddress/$msk >> /etc/asterisk/sark_sip_localnet.conf`;
+		`awk '!_[\$0]++'  /etc/asterisk/sark_sip_localnet.conf > /tmp/localnet.tmp`;
+		`mv /tmp/localnet.tmp /etc/asterisk/sark_sip_localnet.conf`;
+		`chown asterisk:asterisk /etc/asterisk/*`;
+		`chmod 664 /etc/asterisk/*`;
 		`asterisk -rx 'reload' > /dev/null`;
 	}
 	

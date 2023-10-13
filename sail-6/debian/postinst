@@ -74,9 +74,6 @@ chmod 755 -R /opt/sark/generator
 chmod 755 -R /opt/sark/perl
 chmod 755 -R /opt/sark/scripts
 
-#FOP directory 
-[ ! -e /opt/sark/fop ] && mkdir /opt/sark/fop
-
 grep -q '#include sark_manager.conf' /etc/asterisk/manager.conf
 if [  "$?" -ne "0" ] ; then
         cp -f /opt/sark/cache/manager.conf /etc/asterisk
@@ -121,7 +118,6 @@ chmod +x /opt/sark/service/srk-ua-siplog/run
 # link the helpers if they don't exist 
 [ ! -L /etc/service/srk-ua-helper ] && ln -s /opt/sark/service/srk-ua-helper /etc/service
 [ ! -L /etc/service/srk-ua-responder ] && ln -s /opt/sark/service/srk-ua-responder /etc/service
-[ ! -L /etc/service/srk-ua-rssh ] && ln -s /opt/sark/service/srk-ua-rssh /etc/service
 [ ! -L /etc/service/srk-ua-siplog ] && ln -s /opt/sark/service/srk-ua-siplog /etc/service
 
 # 
@@ -147,6 +143,15 @@ rm -rf /etc/apache2/sites-available/sark*
 [ ! -L /etc/apache2/sites-available/sark-name.conf ] && ln -s /opt/sark/etc/apache2/sites-available/sark-name.conf /etc/apache2/sites-available
 [ ! -L /etc/apache2/sites-available/sark-ssl.conf ] && ln -s /opt/sark/etc/apache2/sites-available/sark-ssl.conf /etc/apache2/sites-available
 [ ! -L /etc/apache2/sites-available/sark-prov-ssl.conf ] && ln -s /opt/sark/etc/apache2/sites-available/sark-prov-ssl.conf /etc/apache2/sites-available
+
+# Use our versions of asterisk/modules, asterisk/http & asterisk/pjsip
+
+[ ! -e /etc/asterisk/modules.install.conf ] mv /etc/asterisk/modules.conf /etc/asterisk/modules.install.conf
+[ ! -L /etc/asterisk/modules.conf ] && ln -s /etc/asterisk/sark_modules.conf /etc/asterisk/modules.conf
+[ ! -e /etc/asterisk/http.install.conf ] mv /etc/asterisk/http.conf /etc/asterisk/http.install.conf
+[ ! -L /etc/asterisk/http.conf ] && ln -s /etc/asterisk/sark_http.conf /etc/asterisk/http.conf
+[ ! -e /etc/asterisk/pjsip.install.conf ] mv /etc/asterisk/pjsip.conf /etc/asterisk/pjsip.install.conf
+[ ! -L /etc/asterisk/pjsip.conf ] && ln -s /etc/asterisk/sark_pjsip.conf /etc/asterisk/pjsip.conf
 
 
 # enable sark apache fragments

@@ -1,5 +1,4 @@
 <?php 
-	require_once $_SERVER["DOCUMENT_ROOT"] . "../php/config.php";
 	require_once $_SERVER["DOCUMENT_ROOT"] . "../php/srkPageClass";
 	require_once $_SERVER["DOCUMENT_ROOT"] . "../php/srkDbClass";
 	require_once $_SERVER["DOCUMENT_ROOT"] . "../php/srkHelperClass";
@@ -35,7 +34,11 @@
 
 		echo '<div class="w3-top" style="z-index:99">';
 		require_once $_SERVER["DOCUMENT_ROOT"] . "../php/banner.php";
-
+/*		
+		if (!$_SESSION['nag']) {
+			require_once $_SERVER["DOCUMENT_ROOT"] . "../php/navigation.php";
+		}
+*/
 					
 		$url = explode('/', $_SERVER['SCRIPT_URL']);	
 		require 'view.php';
