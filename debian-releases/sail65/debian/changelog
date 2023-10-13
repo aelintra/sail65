@@ -1,7 +1,13 @@
+sail (6.5.0-2) UNRELEASED; urgency=low
+
+   - Second packaging of the PJSIP release
+   - Bring forward last updates from 6.2
+
+ -- CoCoSoft <admin@aelintra.com>  Tue, 11  Oct 2023 18:00:00 +0000
 
 sail (6.5.0-1) UNRELEASED; urgency=low
 
    - First packaging of the PJSIP release
 
  -- CoCoSoft <admin@aelintra.com>  Tue, 15  Aug 2023 18:00:00 +0000
- 
+
