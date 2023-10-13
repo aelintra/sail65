@@ -5,7 +5,7 @@ Copyright: GPL
 
 Information from the binary package:
 Name        : sail
-Version     : 6.2
+Version     : 6.5
 Release     : 1
 Architecture: noarch
 Install Date: (not installed)
@@ -22,6 +22,4 @@ Vendor      : Aelintra Telecom Limited
 Summary     : SARK  Asterisk Integration Layer (SAIL) - A fast, lightweight code generator for Asterisk
 Description :
 SARK  Asterisk Integration Layer (SAIL).  Admin and backend code to configure and build Asterisk
-  dialplans on the fly under EL5.
-
-
+  dialplans on the fly for Deb/Ubu distributions.
