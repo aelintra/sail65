@@ -280,8 +280,8 @@ CREATE TABLE IF NOT EXISTS globals (
 pkey TEXT PRIMARY KEY,
 ABSTIMEOUT INTEGER DEFAULT 14400,   -- default abstimeout 4 hours
 ACL TEXT,                           -- ON/OFF 
-AGENTSTART TEXT DEFAULT 6001,	    -- Agent start number
-ALERT TEXT,							-- not used in 4.x 
+AGENTSTART TEXT DEFAULT 6001,	      -- Agent start number
+ALERT TEXT,							      -- not used in 4.x 
 ALLOWHASHXFER TEXT,                 -- Allow asterisk non-SIP xfer
 ASTDLIM TEXT,                       -- Asterisk delimiter ','
 ATTEMPTRESTART TEXT,                -- not used in 4.x 
@@ -290,35 +290,35 @@ BINDPORT TEXT DEFAULT 5060,			-- SIP BINDPORT
 BLINDBUSY TEXT,                     -- blind transfer busy bounce
 BOUNCEALERT TEXT,                   -- alertinfo string for blind transfer bounce
 CALLPARKING TEXT DEFAULT 'YES',		-- turn call parking on/off
-CALLRECORD1 TEXT,					-- call recording defaults
+CALLRECORD1 TEXT,					      -- call recording defaults
 CAMPONQONOFF TEXT,                  -- camp-on miniqueue enable
 CAMPONQOPT TEXT,                    -- camp-on miniqueue options
 CDR TEXT,                           -- not used
 CFEXTRN TEXT,                       -- allow cforward to external numbers
-CFWDEXTRNRULE TEXT,     			-- not used in 4.x 
+CFWDEXTRNRULE TEXT,     			   -- not used in 4.x 
 CFWDPROGRESS TEXT,                  -- progress tones for cfwd
 CFWDANSWER TEXT,                    -- take call off-hook before forward to external
-CLUSTER TEXT DEFAULT 'OFF',		    -- dtenant support ON/OFF
+CLUSTER TEXT DEFAULT 'OFF',		   -- dtenant support ON/OFF
 CONFTYPE TEXT,                      -- conference type - deprecated in 4.1
 COSSTART TEXT,                      -- COS on/off                      
 COUNTRYCODE TEXT,                   -- countrycode
-DIGITS TEXT,                    	-- not used in 4.x 
+DIGITS TEXT,                     	-- not used in 4.x 
 DYNAMICFEATURES TEXT DEFAULT 'clear#outpause#outresume',  -- Asterisk DYNAMIC_FEATURES string		
 EDOMAIN TEXT,                       -- external IP address of this server
-EURL TEXT							-- external URL for remote phones
+EURL TEXT							      -- external URL for remote phones
 EMAILALERT TEXT,                    -- email alert address
 EMERGENCY TEXT,                     -- emergency numbers which bypass COS
-EXTBLKLST TEXT DEFAULT NO,			-- YES/NO loads voipbl.com external SIP blacklist into an ipset
+EXTBLKLST TEXT DEFAULT NO,			   -- YES/NO loads voipbl.com external SIP blacklist into an ipset
 EXTLEN TEXT,                        -- extension length
-EXTLIM TEXT,        				-- not used in 4.x 
+EXTLIM TEXT,        				      -- not used in 4.x 
 FAX TEXT,                           -- FAX flag
 FAXDETECT TEXT,                     -- FAX detect on/off
 FOPPASS TEXT,                       -- Flash opeartor panel password
-FQDN TEXT,							-- FQDN V5+ 
+FQDN TEXT,							      -- FQDN V5+ 
 FQDNDROPBUFF TEXT DEFAULT 100,		-- fqdn drop set size (in entries)
 FQDNINSPECT TEXT DEFAULT 'NO',		-- Require FQDN in SIP Ops Shorewall 4.6+
 FQDNHTTP TEXT DEFAULT 'NO',			-- Require FQDN in remote HTTP Ops 
-FQDNPROV TEXT,						-- use FQDN in remote provisioning YES/NO
+FQDNPROV TEXT,						      -- use FQDN in remote provisioning YES/NO
 FQDNTRUST TEXT DEFAULT 'NO',			-- construct an ipset of trusted IP's from a list of trusted fqdns
 G729 TEXT,                          -- G729 switch - not used
 HAAUTOFAILBACK TEXT,                -- not used after asha 2
@@ -330,16 +330,16 @@ HASECNODE TEXT,                     -- not used in 4.x
 HASYNCH TEXT,                       -- not used in 4.x
 HAUSECLUSTER TEXT,                  -- use cluster virt IP when provisioning
 INTRINGDELAY TEXT,                  -- ring time before voicemail
-IVRKEYWAIT INTEGER DEFAULT 3,		-- IVR key wait
+IVRKEYWAIT INTEGER DEFAULT 3,		   -- IVR key wait
 IVRDIGITWAIT INTEGER DEFAULT 3000, 	-- IVR inter-digit wait
-LACL TEXT,							-- Generate ACLs
+LACL TEXT,							      -- Generate ACLs
 LANGUAGE TEXT,                      -- not used
 LDAPBASE text,                      -- LDAP base
 LDAPOU text,                        -- LDAP OU
 LDAPUSER text,                      -- LDAP user
 LDAPPASS text,                      -- LDAP password
 LEASEHDTIME INTEGER DEFAULT 43200,  -- Hot desk lease time
-LKEY TEXT,							-- not used
+LKEY TEXT,							      -- not used
 LOCALAREA TEXT,                     -- not used (See Cluster)
 LOCALDLEN TEXT,                     -- not used (See Cluster)
 LOCALIP TEXT,                       -- local ip address
@@ -355,9 +355,9 @@ MISDNRUN TEXT,                      -- not used in 4.x
 MIXMONITOR TEXT,                    -- force mixmonitor on all recordings
 MONITOROUT TEXT,                    -- monitorout folder
 MONITORSTAGE TEXT,                  -- monstage folder
-MONITORTYPE TEXT,					-- Monitor or Mixmonitor
+MONITORTYPE TEXT,					      -- Monitor or Mixmonitor
 MYCOMMIT TEXT,                      -- commit outstanding
-NATDEFAULT TEXT DEFAULT 'local', 		-- V6 NAT defaiult local/remote
+NATDEFAULT TEXT DEFAULT 'local', 	-- V6 NAT defaiult local/remote
 NATPARAMS TEXT DEFAULT 'force_rport,comedia', --V6 NAT default remote params
 NUMGROUPS TEXT,                     -- not used in 4.x 
 ONBOARDMENU TEXT,                   -- not used in 4.x 
@@ -367,14 +367,14 @@ PADMINPASS TEXT DEFAULT 'myadminpass',	-- phone browser ADMIN passord
 PUSERPASS TEXT DEFAULT 'myuserpass',	-- phone browser USER passord
 PWDLEN TEXT,                        -- password length
 PCICARDS TEXT,                      -- not used in 4.x 
-PKTINSPECT TEXT,					-- not used
+PKTINSPECT TEXT,					      -- not used
 PLAYBEEP TEXT,                      -- play beep on failover
 PLAYBUSY TEXT,                      -- play busy message or tones
 PLAYCONGESTED TEXT,                 -- play congested message or tones
 PLAYTRANSFER TEXT DEFAULT 'YES',    -- play transfer message when transferring off the PBX
 PROXY TEXT,                         -- allow proxy operations
 PROXYIGNORE TEXT,                   -- not used in 4.x
-RECAGE INTEGER DEFAULT 60,			-- not used after 6.2.0-26 - moved to clusters
+RECAGE INTEGER DEFAULT 60,			   -- not used after 6.2.0-26 - moved to clusters
 RECFINALDEST TEXT,                  -- recordings folder
 RECLIMIT TEXT,                      -- Recording folder max size
 RECMOUNT TEXT,                   	-- Recording folder mount command
@@ -390,25 +390,25 @@ SENDEDOMAIN TEXT DEFAULT 'YES',  	-- Send public IP in SIP header YES/NO
 SIPIAXSTART TEXT,                   -- lowest extension number
 SIPFLOOD TEXT DEFAULT 'NO',			-- detect SIP flood YES/NO
 SIPMULTICAST TEXT,                  -- listen for multicast provisioning requests
-SIPDRIVER TEXT DEFAULT 'SIP',		-- SIP backend. SIP or PJSIP
+SIPDRIVER TEXT DEFAULT 'PJSIP',		-- SIP backend now PJSIP
 SMSALERT TEXT,                      -- not used in 4.x 
 SMSC TEXT,                          -- not used in 4.x 
 SNO TEXT,                           -- not used in 4.x 
 SPYPASS TEXT,                       -- password for SPY ops
-STATICIPV4 TEXT DEFAULT NULL,		-- Static IP to start
+STATICIPV4 TEXT DEFAULT NULL,		   -- Static IP to start
 SUPEMAIL TEXT,                      -- supervisor email
-SYSOP TEXT DEFAULT '00',			-- system operator real extension
+SYSOP TEXT DEFAULT '00',			   -- system operator real extension
 SYSPASS TEXT,                       -- password for sysops
 TFTP TEXT,                          -- deprecated in 4.0, deleted in 4.1
-TLSPORT	TEXT,						-- TLS port (default 5061)
+TLSPORT	TEXT,						      -- TLS port (default 5061)
 UNDO TEXT,                          -- not used in 4.x 
 UNDONUM TEXT,                       -- not used in 4.x 
 UNDOONOFF TEXT,                     -- not used in 4.x 
 USBRECDISK TEXT,                    -- not used in 4.x 
-USEROTP TEXT DEFAULT NULL,			-- V6 default OTP.  Seeded by the generator
-USERCREATE TEXT DEFAULT 'NO',		-- V6 create user when extension created YES/NO		
-VCL TEXT,							-- V5 cloud enabled (true/false)
-VCLFULL TEXT,						-- V5 cloud param
+USEROTP TEXT DEFAULT NULL,			   -- V6 default OTP.  Seeded by the generator
+USERCREATE TEXT DEFAULT 'NO',		   -- V6 create user when extension created YES/NO		
+VCL TEXT,							      -- V5 cloud enabled (true/false)
+VCLFULL TEXT,						      -- V5 cloud param
 VDELAY TEXT,                        -- artificial ring on inbound SIP
 VLIBS TEXT,                         -- not used in 4.x 
 VMAILAGE TEXT,                      -- oldest age of vmail - moved to clusters in 6.2.26
@@ -427,7 +427,7 @@ z_updater TEXT DEFAULT 'system'
 CREATE TABLE IF NOT EXISTS ivrmenu (
 id INTEGER PRIMARY KEY,	
 pkey TEXT,
-alert0 TEXT,						-- Alertinfo for each keypress
+alert0 TEXT,						      -- Alertinfo for each keypress
 alert1 TEXT,
 alert10 TEXT,
 alert11 TEXT,
@@ -441,10 +441,10 @@ alert8 TEXT,
 alert9 TEXT,
 description TEXT DEFAULT 'None',
 cluster TEXT,
-greetnum TEXT DEFAULT 'None',						-- greeting number to play
+greetnum TEXT DEFAULT 'None',			-- greeting number to play
 listenforext TEXT,
 name TEXT,
-option0 TEXT,						-- routed name for each keypress
+option0 TEXT,						      -- routed name for each keypress
 option1 TEXT,
 option10 TEXT,
 option11 TEXT,
@@ -456,7 +456,7 @@ option6 TEXT,
 option7 TEXT,
 option8 TEXT,
 option9 TEXT,
-routeclass0 TEXT,					-- routeclass for each keypress
+routeclass0 TEXT,					      -- routeclass for each keypress
 routeclass1 TEXT,
 routeclass10 TEXT,
 routeclass11 TEXT,
@@ -468,7 +468,7 @@ routeclass6 TEXT,
 routeclass7 TEXT,
 routeclass8 TEXT,
 routeclass9 TEXT,
-tag0 TEXT,							-- alphatag for each keypress
+tag0 TEXT,							      -- alphatag for each keypress
 tag1 TEXT,
 tag10 TEXT,
 tag11 TEXT,
@@ -480,8 +480,8 @@ tag6 TEXT,
 tag7 TEXT,
 tag8 TEXT,
 tag9 TEXT,
-timeout TEXT,						-- timeout name 					
-timeoutrouteclass TEXT,				-- timeout routeclass
+timeout TEXT,			               -- timeout name 					
+timeoutrouteclass TEXT,	            -- timeout routeclass
 z_created datetime,
 z_updated datetime,
 z_updater TEXT DEFAULT 'system'

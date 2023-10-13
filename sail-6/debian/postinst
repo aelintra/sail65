@@ -146,11 +146,11 @@ rm -rf /etc/apache2/sites-available/sark*
 
 # Use our versions of asterisk/modules, asterisk/http & asterisk/pjsip
 
-[ ! -e /etc/asterisk/modules.install.conf ] mv /etc/asterisk/modules.conf /etc/asterisk/modules.install.conf
+[ ! -e /etc/asterisk/modules.install.conf ] && mv /etc/asterisk/modules.conf /etc/asterisk/modules.install.conf
 [ ! -L /etc/asterisk/modules.conf ] && ln -s /etc/asterisk/sark_modules.conf /etc/asterisk/modules.conf
-[ ! -e /etc/asterisk/http.install.conf ] mv /etc/asterisk/http.conf /etc/asterisk/http.install.conf
+[ ! -e /etc/asterisk/http.install.conf ] && mv /etc/asterisk/http.conf /etc/asterisk/http.install.conf
 [ ! -L /etc/asterisk/http.conf ] && ln -s /etc/asterisk/sark_http.conf /etc/asterisk/http.conf
-[ ! -e /etc/asterisk/pjsip.install.conf ] mv /etc/asterisk/pjsip.conf /etc/asterisk/pjsip.install.conf
+[ ! -e /etc/asterisk/pjsip.install.conf ] && mv /etc/asterisk/pjsip.conf /etc/asterisk/pjsip.install.conf
 [ ! -L /etc/asterisk/pjsip.conf ] && ln -s /etc/asterisk/sark_pjsip.conf /etc/asterisk/pjsip.conf
 
 
