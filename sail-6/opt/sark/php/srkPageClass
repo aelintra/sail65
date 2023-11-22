@@ -1979,7 +1979,9 @@ require_once $_SERVER["DOCUMENT_ROOT"] . "../php/srkNetHelperClass";
     echo '<div class="w3-container ">';
     echo '<h4>System</h4>';    
 
-    $rlse = `dpkg-query -W -f '\${version}\n' sail`;
+    $distro = `lsb_release -a | grep -i description`;
+    $distro = preg_replace ("/^Description:\s/","",$distro);
+    echo "Distro: <strong>" . $distro . "</strong><br/>"   
 
     if ( $helper->check_pid() ) {  
         $astrelease = `sudo /usr/sbin/asterisk -rx 'core show version'`;
@@ -1987,8 +1989,9 @@ require_once $_SERVER["DOCUMENT_ROOT"] . "../php/srkNetHelperClass";
         $astrelnum = explode('~', $astarray[1]);
         echo "PBX release: <strong>" . $astrelnum[0] . "</strong><br/>";
     }   
+    
+    $rlse = `dpkg-query -W -f '\${version}\n' sail`;
     echo "SAIL Release: <strong>$rlse</strong><br/>";
-
 
     $rlse = `dpkg-query -W -f '\${version}\n' sailhpe`;
     echo "HPE Release: <strong>$rlse</strong><br/>";

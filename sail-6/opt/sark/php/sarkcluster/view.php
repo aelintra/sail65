@@ -45,7 +45,7 @@ public function showForm() {
 
 	if (!empty($_FILES['file']['name'])) {
 		$this->doUpload(); 
-		$this->showMain();
+		$this->showEdit();
 		return;									
 	}	
 
@@ -275,8 +275,8 @@ private function showEdit($pkey=false) {
 	
 
 	if (!$pkey) {
-		if (isset ($_GET['pkey'])) {
-			$pkey = $_GET['pkey']; 
+		if (isset ($_REQUEST['pkey'])) {
+			$pkey = $_REQUEST['pkey']; 
 		}
 	}
 
@@ -484,23 +484,51 @@ private function doUpload() {
 			return -1;
 		}
 
-		$filename = strip_tags($_FILES['file']['name']);
-		if (!preg_match (' /wav$/ ', $filename) ) {
-			$this->error_hash['Format'] = "Upload file MUST be format wav";
+		$fileName = $_FILES['file']['name'];
+
+//	Check for our mime types
+		if (!preg_match (' /\.(wav|mp3)$/ ', $fileName) ) {
+			$this->error_hash['Format'] = "Upload file MUST be .wav or .mp3";
 			return -1;
 		}
-		$sox = "/usr/bin/sox " . $_FILES['file']['tmp_name'] . " -r 8000 -c 1 -e signed /tmp/" . $_FILES['file']['name'] . " -q";
-		$rets = `$sox`;
-		if ($rets) {
-			$this->error_hash['fileconv'] = "Upload file conversion failed! - $rets";
-			return -1;			
-		}
 
+//	Split the fileName and remove anything we don't like from the left hand side 		
+		preg_match('/(.*)\.(.*)$/',$fileName,$matches); 
+
+// 	save the file extension
+		$fileExt = $matches[2];
+
+//	Remove any nonsense and replace spaces with '_' 		
+		$fileName = preg_replace('/[^A-Za-z0-9 ]/','',$matches[1]);
+		$fileName = preg_replace('/[^A-Za-z0-9]/','_',$fileName);
+		$fileName = preg_replace('/__*/','_',$fileName);		
+
+//	re-assemble our cleansed fileName
+		$fileName = $fileName . '.' . $fileExt;
+
+//	get the fullpath temp name of the file the browser uploaded for us
+		$tempFile = $_FILES['file']['tmp_name'];
+
+// 	create the moh directory name
 		$dir='moh-' . $_POST['pkey'];
-		$tfile = $_FILES['file']['tmp_name'];
-		$this->helper->request_syscmd ("/bin/mv /tmp/" . $_FILES['file']['name'] . ' ' . $this->mohroot . $dir);
-		$this->message = "File $filename uploaded!";
-		
-}
+	
+// 	Set the target
+		$targetFile = $this->mohroot . "$dir/$fileName";
 
+//	For wav files, attempt to convert them to the correct 8k Mono format that Asterisk needs 
+		if ($fileExt == 'wav' ) {
+			$this->helper->request_syscmd ("/usr/bin/sox $tempFile -r 8000 -c 1 -e signed $targetFile -q");
+		}
+		else {
+			$this->helper->request_syscmd ("/bin/cp $tempFile $targetFile");
+		}
+// 	set the perms
+		if (file_exists($targetFile)) {				
+			$this->helper->request_syscmd ("/usr/bin/chmod +r $targetFile");
+			$this->message = "File $fileName uploaded!";
+		}
+		else {
+			$this->message = "File $fileName failed to upload!";
+		}
+	}	
 }
