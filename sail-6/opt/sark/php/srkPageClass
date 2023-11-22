@@ -1955,22 +1955,7 @@ require_once $_SERVER["DOCUMENT_ROOT"] . "../php/srkNetHelperClass";
     else {
         $runstate = "STOPPED";
     }
-    if ( file_exists ("/etc/corosync/corosync.conf")) { 
-        if  (`/bin/ps -e | /bin/grep corosync | /bin/grep -v grep`) {
-            $harunstate = "RUNNING";
-            $work = `/sbin/ip addr show eth0 | grep secondary`;    
-            if (preg_match(" /inet *?([\d.]+)/",$work,$matches)) { 
-                $virtualip = $matches[1];           
-            }
-            $work = `/sbin/ip addr show eth1 | grep inet`;
-            if (preg_match(" /inet *?([\d.]+)/",$work,$matches)) { 
-                $commip = $matches[1];          
-            }           
-        }
-        else {
-            $harunstate = "STOPPED";
-        }
-    }
+
     echo '<div class="w3-card-4 w3-round-large ' . $this->bgColorClass . '">';
     echo '<div class="w3-row w3-small ">';
 
@@ -1981,7 +1966,7 @@ require_once $_SERVER["DOCUMENT_ROOT"] . "../php/srkNetHelperClass";
 
     $distro = `lsb_release -a | grep -i description`;
     $distro = preg_replace ("/^Description:\s/","",$distro);
-    echo "Distro: <strong>" . $distro . "</strong><br/>"   
+    echo "Distro: <strong>" . $distro . "</strong><br/>";   
 
     if ( $helper->check_pid() ) {  
         $astrelease = `sudo /usr/sbin/asterisk -rx 'core show version'`;
