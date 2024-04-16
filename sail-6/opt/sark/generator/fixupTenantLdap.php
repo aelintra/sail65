@@ -1,6 +1,6 @@
 <?php
 // +-----------------------------------------------------------------------+
-// |  Copyright (c) CoCoSoft 2005-                                 |
+// |  Copyright (c) CoCoSoft 2024-                                  |
 // +-----------------------------------------------------------------------+
 // | This file is free software; you can redistribute it and/or modify     |
 // | it under the terms of the GNU General Public License as published by  |
@@ -14,16 +14,30 @@
 // | Author: CoCoSoft                                                           |
 // +-----------------------------------------------------------------------+
 //
-//include("ip_helper_functions.php"); 
-include("generated_file_banner.php");
-include("localvars.php");
 
-include ("/opt/sark/php/config.php");
-include ("/opt/sark/php/srkDbClass");
-include ("/opt/sark/php/srkHelperClass");
-include ("/opt/sark/php/srkGenClass");
+/**
+ * fixupTenantLdap
+ * read through the tenant (cluster) table and attempt to create an LDAP OU and simplesecurity object for each.
+ */
+
+ include("/opt/sark/php/srkLDAPHelperClass");
+ include("/opt/sark/php/srkHelperClass");
+ include("/opt/sark/php/srkDbClass");
+
+$helper = new helper;
+$ldap = new ldaphelper;
+
+if (!$ldap->Connect()) {
+	$helper->logIt("LDAP ERROR 19 - " . ldap_error($ldap->ds));
+    exit;
+}
+
+$rows = $helper->getTable("cluster");
+foreach ($rows as $row ) {
+    $ldap->AddNewTenant($row['pkey']);
+    $ldap->AddNewSimpleSecurityObject($row['pkey'],$row['ldapropwd']);
+}
 
 
-$run = new genAsteriskObjects();
-$run->genAsterisk();
-?>
+$ldap->Close();
+exit;

@@ -42,15 +42,15 @@ class RecordingList
         {
             $this->calls[self::QUEUED][] = array('file_list' => $file_list, 'file_link' => $file_link);
         }
-        else if ((strlen($file_list[2+$this->offset]) <= 4) && (strlen($file_list[1+$this->offset]) > 4))
+        else if ((strlen($file_list[2+$this->offset]) <= 5) && (strlen($file_list[1+$this->offset]) > 5))
         {
             $this->calls[self::OUTBOUND][] = array('file_list' => $file_list, 'file_link' => $file_link);
         }
-        else if ((strlen($file_list[1+$this->offset]) <= 4) && (strlen($file_list[2+$this->offset]) > 4))
+        else if ((strlen($file_list[1+$this->offset]) <= 5) && (strlen($file_list[2+$this->offset]) > 5))
         {
             $this->calls[self::INBOUND][] = array('file_list' => $file_list, 'file_link' => $file_link);
         }
-        else if ((strlen($file_list[1+$this->offset]) <= 4) && (strlen($file_list[2+$this->offset]) <= 4))
+        else if ((strlen($file_list[1+$this->offset]) <= 5) && (strlen($file_list[2+$this->offset]) <= 5))
         {
             $this->calls[self::LOCAL][] = array('file_list' => $file_list, 'file_link' => $file_link);
         }
@@ -80,6 +80,7 @@ class RecordingList
         echo "<h3>Inbound Calls</h3>
             <table>
                 <tr class=\"top\">
+                    <th>Tenant</th>
                     <th>From</th>
                     <th>To</th>
                     <th>Timestamp</th>
@@ -94,6 +95,7 @@ class RecordingList
             $datetime = $this->formatDate($call['file_list'][0]);
 
             echo "<tr>
+            <td>{$call['file_list'][0+$this->offset]}</td>
             <td>{$call['file_list'][2+$this->offset]}</td>
             <td>{$call['file_list'][1+$this->offset]}</td>
             <td>{$datetime}</td>
@@ -110,6 +112,7 @@ class RecordingList
         echo "<h3>Outbound Calls</h3>
             <table>
                 <tr class=\"top\">
+                    <th>Tenant</th>
                     <th>From</th>
                     <th>To</th>
                     <th>Timestamp</th>
@@ -123,6 +126,7 @@ class RecordingList
             $datetime = $this->formatDate($call['file_list'][0]);
 
             echo "<tr>
+            <td>{$call['file_list'][0+$this->offset]}</td>
             <td>{$call['file_list'][2+$this->offset]}</td>
             <td>{$call['file_list'][1+$this->offset]}</td>
             <td>{$datetime}</td>
@@ -139,6 +143,7 @@ class RecordingList
         echo "<h3>Local Calls</h3>
             <table>
                 <tr class=\"top\">
+                    <th>Tenant</th>            
                     <th>From</th>
                     <th>To</th>
                     <th>Timestamp</th>
@@ -152,6 +157,7 @@ class RecordingList
             $datetime = $this->formatDate($call['file_list'][0]);
 
             echo "<tr>
+            <td>{$call['file_list'][0+$this->offset]}</td>
             <td>{$call['file_list'][2+$this->offset]}</td>
             <td>{$call['file_list'][1+$this->offset]}</td>
             <td>{$datetime}</td>
@@ -168,6 +174,7 @@ class RecordingList
         echo "<h3>Bridged Calls</h3>
             <table>
                 <tr class=\"top\">
+                    <th>Tenant</th>
                     <th>From</th>
                     <th>To</th>
                     <th>Timestamp</th>
@@ -181,6 +188,7 @@ class RecordingList
             $datetime = $this->formatDate($call['file_list'][0]);
 
             echo "<tr>
+            <td>{$call['file_list'][0+$this->offset]}</td>
             <td>{$call['file_list'][2+$this->offset]}</td>
             <td>{$call['file_list'][1+$this->offset]}</td>
             <td>{$datetime}</td>
@@ -197,6 +205,7 @@ class RecordingList
         echo "<h3>Queued Calls</h3>
             <table>
                 <tr class=\"top\">
+                    <th>Tenant</th>
                     <th>From</th>
                     <th>Agent/Extn</th>
                     <th>Queue Name</th>
@@ -210,6 +219,7 @@ class RecordingList
         {
             $datetime = $this->formatDate($call['file_list'][0]);
             echo "<tr>
+            <td>{$call['file_list'][0+$this->offset]}</td>
             <td>{$call['file_list'][3+$this->offset]}</td>
             <td>{$call['file_list'][2+$this->offset]}</td>
             <td>{$call['file_list'][1+$this->offset]}</td>
@@ -227,6 +237,7 @@ class RecordingList
         echo "<h3>Unidentified Call Type</h3>
             <table>
                 <tr class=\"top\">
+                    <th>Tenant</th>
                     <th>From</th>
                     <th>To</th>
                     <th>Timestamp</th>
@@ -242,6 +253,7 @@ class RecordingList
             $datetime = $this->formatDate($call['file_list'][0]);
 
             echo "<tr>
+            <td>{$call['file_list'][0+$this->offset]}</td>
             <td>{$call['file_list'][2+$this->offset]}</td>
             <td>{$call['file_list'][1+$this->offset]}</td>
             <td>{$datetime}</td>

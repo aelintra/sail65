@@ -40,14 +40,16 @@
 		"bSort" : true,
 		"aoColumnDefs" : [{
 			"bSortable" : false,
-			"aTargets" : [5]
+			"aTargets" : [7]
 		}],
 		"aoColumns": [ 
+			{ "sName": "cluster" },
 			{ "sName": "sn" },
 			{ "sName": "givenname" },
 			{ "sName": "telephonenumber" },
 			{ "sName": "mobile" },
 			{ "sName": "homephone" },
+			{ "sName": "o" },
 			{ "sName": "del" }
 		],
         "drawCallback": function() {
@@ -58,11 +60,7 @@
 			sUpdateURL: "/php/sarkldap/update.php",		
 			sReadOnlyCellClass: "read_only",
 			"aoColumns": [
-				{
-					type: 'text',
-					event: 'click',
-					onblur: 'submit'			
-				}, 		// surname	
+				null, 		// cluster	
 				{
 					type: 'text',
 					event: 'click',
@@ -71,21 +69,33 @@
 				{
 					type: 'text',
 					event: 'click',
-					onblur: 'submit',	
-					placeholder: ' '				
-				}, 		// forename				
+					onblur: 'submit',
+					placeholder: '-'			
+				}, 		// givenname													
 				{
 					type: 'text',
 					event: 'click',
 					onblur: 'submit',	
-					placeholder: 'None',				
-				}, 		// phone
+					placeholder: '-'				
+				}, 		// phone1				
 				{
 					type: 'text',
 					event: 'click',
 					onblur: 'submit',	
-					placeholder: 'None'				
-				}, 		// mobile	
+					placeholder: '-',				
+				}, 		// phone 2
+				{
+					type: 'text',
+					event: 'click',
+					onblur: 'submit',	
+					placeholder: '-'				
+				}, 		// phone 3
+				{
+					type: 'text',
+					event: 'click',
+					onblur: 'submit',	
+					placeholder: '-'				
+				}, 		// organization				
 				null	// delete col
             ]
     }); 
@@ -98,7 +108,7 @@
 		"sDom": 'fti',
 		"aoColumnDefs" : [{
 			"bSortable" : false,
-			"aTargets" : [5]
+			"aTargets" : [7]
 		}],
         "drawCallback": function() {
 			$(".dataTables_scrollBody").scrollTop(scrollPosition);

@@ -1,0 +1,6 @@
+dn: cn=admin,dc=sark,dc=local
+objectClass: simpleSecurityObject
+objectClass: organizationalRole
+cn: admin
+description: LDAP administrator
+userPassword:: e1NTSEF9SjVyNFZRVDQ5YUZIVTE4N0czWjlCZTJpNDkvMWI0cmc=

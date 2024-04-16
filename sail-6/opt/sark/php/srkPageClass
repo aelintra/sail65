@@ -499,6 +499,14 @@ Class page {
                                 'checked' =>'YES',
                                 'unchecked' => 'NO'
                                 ),
+                'ldapanonbind' => array(
+                                'checked' =>'YES',
+                                'unchecked' => 'NO'
+                                ),
+                'ldaptls'   => array(
+                                'checked' =>'YES',
+                                'unchecked' => 'NO'
+                                ),
 /*                                                                                                  
                 'location'   => array(
                                 'checked' =>'remote',

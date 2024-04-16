@@ -79,6 +79,7 @@ callgroup TEXT,   					-- asterisk callgroup number (1-63)
 chanmax TEXT,     					-- maximum active calls
 description TEXT, 					-- freeform description
 include TEXT,     					-- whitespace separated list of clusters OR, the keyword ALL
+ldapropwd TEXT DEFAULT 'caeSDFXH1238', -- ldap rdonly bind pwd  
 localarea TEXT,   					-- local area code
 localdplan TEXT,  					-- local dialplan
 masteroclo TEXT,  					-- master day/night throw
@@ -305,10 +306,10 @@ COUNTRYCODE TEXT,                   -- countrycode
 DIGITS TEXT,                     	-- not used in 4.x 
 DYNAMICFEATURES TEXT DEFAULT 'clear#outpause#outresume',  -- Asterisk DYNAMIC_FEATURES string		
 EDOMAIN TEXT,                       -- external IP address of this server
-EURL TEXT							      -- external URL for remote phones
+EURL TEXT,							      -- external URL for remote phones
 EMAILALERT TEXT,                    -- email alert address
 EMERGENCY TEXT,                     -- emergency numbers which bypass COS
-EXTBLKLST TEXT DEFAULT NO,			   -- YES/NO loads voipbl.com external SIP blacklist into an ipset
+EXTBLKLST TEXT DEFAULT 'NO',			-- YES/NO loads voipbl.com external SIP blacklist into an ipset
 EXTLEN TEXT,                        -- extension length
 EXTLIM TEXT,        				      -- not used in 4.x 
 FAX TEXT,                           -- FAX flag
@@ -334,10 +335,13 @@ IVRKEYWAIT INTEGER DEFAULT 3,		   -- IVR key wait
 IVRDIGITWAIT INTEGER DEFAULT 3000, 	-- IVR inter-digit wait
 LACL TEXT,							      -- Generate ACLs
 LANGUAGE TEXT,                      -- not used
-LDAPBASE text,                      -- LDAP base
-LDAPOU text,                        -- LDAP OU
-LDAPUSER text,                      -- LDAP user
-LDAPPASS text,                      -- LDAP password
+LDAPANONBIND TEXT DEFAULT 'YES',    -- anonymous bind YES/NO
+LDAPBASE TEXT,                      -- LDAP base
+LDAPHOST TEXT DEFAULT '127.0.0.1',  -- LDAP host
+LDAPOU TEXT DEFAULT 'contacts',     -- LDAP OU
+LDAPUSER TEXT DEFAULT 'admin',      -- LDAP admin user (admin)
+LDAPPASS TEXT,                      -- LDAP admin password
+LDAPTLS DEFAULT 'off',              -- LDAP TLS mode(off/on) 
 LEASEHDTIME INTEGER DEFAULT 43200,  -- Hot desk lease time
 LKEY TEXT,							      -- not used
 LOCALAREA TEXT,                     -- not used (See Cluster)
@@ -376,6 +380,8 @@ PROXY TEXT,                         -- allow proxy operations
 PROXYIGNORE TEXT,                   -- not used in 4.x
 RECAGE INTEGER DEFAULT 60,			   -- not used after 6.2.0-26 - moved to clusters
 RECFINALDEST TEXT,                  -- recordings folder
+RECFILEDLIM TEXT DEFAULT '-',       -- recordings filename delimiter
+RECGRACE INTEGER DEFAULT 5,         -- recording grace period in delete folder before destruction 
 RECLIMIT TEXT,                      -- Recording folder max size
 RECMOUNT TEXT,                   	-- Recording folder mount command
 RECQDITHER TEXT,                    -- dither (ms) on queuelog searches
@@ -395,6 +401,7 @@ SMSALERT TEXT,                      -- not used in 4.x
 SMSC TEXT,                          -- not used in 4.x 
 SNO TEXT,                           -- not used in 4.x 
 SPYPASS TEXT,                       -- password for SPY ops
+SITENAME TEXT,                      -- Common name for this site
 STATICIPV4 TEXT DEFAULT NULL,		   -- Static IP to start
 SUPEMAIL TEXT,                      -- supervisor email
 SYSOP TEXT DEFAULT '00',			   -- system operator real extension

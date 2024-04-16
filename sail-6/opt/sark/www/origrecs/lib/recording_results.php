@@ -3,6 +3,19 @@
 $ext_search = $_POST['extension'];
 $num_search = $_POST['number'];
 
+try {
+    $db = new PDO("sqlite:/opt/sark/db/sark.db");
+  } catch (PDOException $e) {
+    die("Failed to get DB handle: " . $e->getMessage() . "\n");
+}
+$db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+$statement = $db->prepare('SELECT `RECFILEDLIM` FROM `globals`');
+$statement->execute(array());
+$result = $statement->fetchObject();
+$dlim = trim($result->RECFILEDLIM);
+
+
 
 $from_time_search = strtotime($_POST['date'] . ' ' . $_POST['start_time'] . ':00');
 $to_time_search = strtotime($_POST['date'] . ' ' . $_POST['end_time'] . ':59');
@@ -15,6 +28,7 @@ syslog(LOG_WARNING, "Recording folder is $folder");
 
 function wavDur($file)
 {
+    
     $fp = fopen($file, 'r');
     if (fread($fp,4) == 'RIFF')
     {
@@ -44,6 +58,8 @@ function wavDur($file)
 
 $recordings = new RecordingList();
 
+syslog(LOG_WARNING, "dlim is $dlim");
+
 if (is_dir($folder))
 {
     $dir = opendir($folder);
@@ -51,35 +67,23 @@ if (is_dir($folder))
 
     // If there's a tenant name then we expect an extra field in the file name
     // 
-/*
-    $offset = strlen($TENANT)>0 ? 1 : 0;
-    syslog(LOG_WARNING, "Tenant is  $TENANT, offset is $offset");
-    
-    if (defined('OLD_FORMAT_CUTOFF_DATE'))
-    {
-        if (strtotime($_POST['date']) <= strtotime(OLD_FORMAT_CUTOFF_DATE))
-        {
-            // No offsets needed at this point!
-            $offset = 0;
-        }
-    }
-*/
+
     $offset = 1;
     $recordings->setOffset($offset);
 
     while ($file=readdir($dir))
     {
-//        syslog(LOG_WARNING, "Considering file $file");
+        syslog(LOG_WARNING, "Considering file $file");
         if ($file == '.' || $file == '..' || is_dir($file))
         {
             
-//            syslog(LOG_WARNING, "ignoring .{.} file $file");
+            syslog(LOG_WARNING, "ignoring .{.} file $file");
             continue;
         }
-// replace with preg_split for php7
-//        $file_list = split('[-.]', $file);
 
-	$file_list = preg_split('/[-.]/', $file);	
+        $file_list = preg_split('/' . $dlim . "|\./", $file);
+
+//DEBUG var_dump($file_list);
 
         // Unless the filename contains the tenant name then we don't want to include this recording
         if ($offset > 0 && $_SESSION['user']['pkey'] != 'admin' && $file_list[1] != $_SESSION['user']['cluster'])
@@ -126,6 +130,7 @@ if (is_dir($folder))
                         (($num_search != null) && (strpos($file_list[3+$offset], $num_search) !== false))
                    )
                 {
+                    syslog(LOG_WARNING, "Adding file $file");
                     $recordings->addCall($file_list, $file, $folder);
                 }
             }

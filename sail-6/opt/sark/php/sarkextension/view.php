@@ -1206,7 +1206,7 @@ private function showEdit() {
 /*
  *   TAB Provisioning
  */
-
+	$expand_prov = NULL;
 	if ($extension['technology'] == 'SIP') {
 		if ( $_SESSION['user']['pkey'] != 'admin' ) {
 			echo '<div style="display:none">';

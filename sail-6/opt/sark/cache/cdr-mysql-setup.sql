@@ -9,7 +9,7 @@ GRANT ALL ON asterisk.* TO asterisk@localhost;
 USE asterisk; 
 
 CREATE TABLE IF NOT EXISTS `cdr` ( 
-`calldate` datetime NOT NULL DEFAULT (CURRENT_DATE),
+`calldate` datetime NOT NULL DEFAULT (CURRENT_DATE), 
 `clid` varchar(80) NOT NULL default '', 
 `src` varchar(80) NOT NULL default '', 
 `dst` varchar(80) NOT NULL default '', 

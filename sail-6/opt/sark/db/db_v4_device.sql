@@ -1487,17 +1487,23 @@ user_savp1$: off
 
 edit_alpha_mode&: 123
 
-ldap_server$: $localip
-ldap_port!: 
-ldap_base!: $ldapbase
-ldap_username!: 
-ldap_password!: 
-ldap_max_hits!: 50
-ldap_search_filter!: (|(name=%)(sn=%))
-ldap_number_filter!: (|(telephoneNumber=%)(mobile=%)(homePhone=%))
-ldap_name_attributes!: displayName cn sn
-ldap_number_attributes!: mobile telephoneNumber
-ldap_display_name!: %cn
+ldap_server$: $ldaphost
+ldap_port$: 
+ldap_base$: ou=$ldaptenant,ou=$ldapou,$ldapbase
+ldap_username$: $ldaprouser
+ldap_password$: $ldapropwd
+ldap_max_hits$: 50
+ldap_sort_mode$: server
+ldap_search_filter$: (|(sn=%)(cn=%)(o=%))
+ldap_number_filter$: (|(telephoneNumber=%)(mobile=%)(homePhone=%))
+ldap_name_attributes$: cn o
+ldap_number_attributes$: mobile telephoneNumber homePhone
+ldap_search_filter_during_call$: (|(cn=%))
+ldap_number_filter_during_call$: (|(telephoneNumber=%)(mobile=%)(homePhone=%))
+ldap_display_name$: %cn,%o
+; Turn this on if your directory supports TLS. Snom only supports LDAPS (SSL/TLS over port 686)
+ldap_over_tls$: off
+
 dkey_directory!: keyevent F_DIRECTORY_SEARCH
 
 ignore_asserted_in_gui$: on
@@ -1581,6 +1587,7 @@ user_srtp1$: on
 user_auth_tag1$: off
 user_savp1$: mandatory
 ','Descriptor');
+INSERT OR IGNORE INTO Device(pkey,desc,owner,provision,technology) values ('snom.v10_ldap','snom v10 ldap search filter','system','ldap_search_filter$: (|(cn=%*)(sn=%*)(o=%*)','Descriptor');
 INSERT OR IGNORE INTO Device(pkey,desc,owner,provision,technology) values ('snom.udp','snom udp fragment','system','user_outbound1$:
 user_srtp1$: off
 user_srtp2$: off
@@ -2296,22 +2303,22 @@ features.pickup.direct_pickup_code = *8
 ##         	              LDAP Settings                                              ##
 #######################################################################################
 #Configure the search criteria for name and number lookups.
-ldap.name_filter = (|(name=%)(sn=%))
+ldap.name_filter = (|(cn=%)(sn=%)(o=%))
 ldap.number_filter = (|(telephoneNumber=%)(mobile=%)(homePhone=%))
 
-ldap.host = $localip
+ldap.host = $ldaphost
 ldap.port = 389
 
-ldap.base = $ldapbase
-ldap.user = 
-ldap.password = 
+ldap.base = ou=$ldaptenant,ou=$ldapou,$ldapbase
+ldap.user=$ldaprouser
+ldap.password=$ldapropwd 
 
 #Specify the maximum of the displayed search results. It ranges from 1 to 32000, the default value is 50.
-ldap.max_hits = 
+ldap.max_hits = 50
 
-ldap.name_attr = displayName cn sn
-ldap.numb_attr =  mobile telephoneNumber
-ldap.display_name = %cn
+ldap.name_attr = cn o
+ldap.numb_attr =  mobile telephoneNumber homePhone
+ldap.display_name = %cn,%o
 
 #Configure the LDAP version. The valid value is 2 or 3 (default).
 ldap.version = 
@@ -2328,6 +2335,14 @@ ldap.ldap_sort =  1
 #Enable or disable the phone to query the LDAP server when in the pre-dialing or the dialing state; 0-Disabled (default), 1-Enabled;
 ldap.dial_lookup =  1
 
+# TLS mode - 0 = LDAP;1 = LDAP TLS start (port 389);2 = LDAPs(port 686)
+# LDAPS is likely the most secure due to startTLS being "TOFU"
+ldap.tls_mode=0
+
+
+#######################################################################################
+##         	              Account Settings                                              ##
+#######################################################################################
 account.1.enable = 1
 account.1.outbound_proxy_enable = 1
 account.1.subscribe_register = 1

@@ -16,13 +16,14 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
-
+require_once $_SERVER["DOCUMENT_ROOT"] . "../php/srkLDAPHelperClass";
 
 Class sarkcluster {
 	
 	protected $message; 
 	protected $head = "Tenants";
 	protected $myPanel;
+	protected $ldap;
 	protected $dbh;
 	protected $helper;
 	protected $validator;
@@ -39,6 +40,7 @@ public function showForm() {
 	$this->myPanel = new page;
 	$this->dbh = DB::getInstance();
 	$this->helper = new helper;
+	$this->ldap = new ldaphelper;
 
 	
 	$this->myPanel->pagename = 'Tenants';
@@ -324,7 +326,9 @@ private function showEdit($pkey=false) {
 
 //	$this->myPanel->displayPopupFor('devicerec',$res['devicerec'],array('default','None','Both'));
 	$this->myPanel->displayInputFor('recmaxage','number',$res['recmaxage']);
-	$this->myPanel->displayInputFor('recused','number',$res['recused'],null,null,true);
+	$this->myPanel->displayInputFor('recused','text',$res['recused'],null,null,true);
+	$this->myPanel->displayInputFor('ldapropwd','text',$res['ldapropwd']);
+//	$this->myPanel->displayInputFor('recused','number',$res['recused'],null,null,true);
 	
 	$this->myPanel->radioSlide('masterclose',$masterclose,array('AUTO','CLOSED'));
 //	$this->myPanel->displayInputFor('oclo','text',$res['oclo'],null,null,true);
@@ -427,8 +431,11 @@ private function saveEdit() {
     $this->validator->addValidation("abstimeout","num","Absolute Timeout must be numeric");
     $this->validator->addValidation("chanmax","num","Channels must be numeric");
     $this->validator->addValidation("recage","num","recording age must be numeric");
+	$this->validator->addValidation("ldapropwd","minlen=12","ldap password must be 12 to 18 chars");
+	$this->validator->addValidation("ldapropwd","maxlen=18","ldap password must less than 19 chars");
 
     //Now, validate the form
+	
     if ($this->validator->ValidateForm()) {
 /*
  * 	call the tuple builder to create a table row array 

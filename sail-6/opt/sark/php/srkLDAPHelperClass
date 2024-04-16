@@ -16,7 +16,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
-require_once $_SERVER["DOCUMENT_ROOT"] . "../php/srkDbClass";
  
 Class ldaphelper {
 	
@@ -24,21 +23,31 @@ Class ldaphelper {
 	protected $password;
 	protected $ldapserver = '127.0.0.1';
 	protected $dbh;
+	protected $helper;
+	protected $ldapargs; /* used for semi-automatic adds of tenants and security objects */
 	
 	public $base;
+	public $baseou;
 	public $addressbook;	
 	public $ds;
 	
 function __construct() {
+	$this->helper = new helper; 
 	$this->dbh = DB::getInstance();
 	$res = $this->dbh->query("SELECT LDAPBASE,LDAPOU,LDAPUSER,LDAPPASS FROM globals")->fetch(PDO::FETCH_ASSOC);
 	$this->user = 'cn=' . $res['LDAPUSER'];
 	$this->password = $res['LDAPPASS'];
-	$this->addressbook = 'ou=' . $res['LDAPOU'];
 	$this->base = $res['LDAPBASE']; 
+	$this->baseou = $res['LDAPOU'];
+
+	if (empty($this->addressbook)) {
+		$this->addressbook = 'ou=' . $res['LDAPOU'];
+	}
 }
- 	
-	
+
+/**
+ * Open LDAP session
+ */
 public function Connect() {
 	$this->ds = ldap_connect($this->ldapserver)
 		or die("Could not connect to ldap server: $this->ldapserver");
@@ -50,30 +59,127 @@ public function Connect() {
 	return 1;
 }
 
+/**
+ * Generalised search
+ */
 public function Search($arg) {
 	$sr = ldap_search($this->ds, $this->addressbook . "," . $this->base, "cn=*", $arg);
 	return (ldap_get_entries($this->ds, $sr));	
 }
 
-public function Get($uid,$arg) {
-	$sr = ldap_search($this->ds, $this->addressbook . "," . $this->base, $uid, $arg);
+/**	
+ * Get a single entry using the DN 
+ */
+public function dnGet($dn) {
+	$sr = ldap_search($this->ds, $dn, "cn=*");
+	if (empty($sr)) {
+		return null;
+	}	
 	return (ldap_get_entries($this->ds, $sr));	
 }
 
+/**	
+ * Post a new entry
+ */
 public function Add($arg) {
-	$sr = ldap_add($this->ds, "uid=" . uniqid('',true) . ","  . $this->addressbook . "," . $this->base, $arg);
+	$lkey = "uid=" . uniqid('',true) . ","  . $this->addressbook . "," . $this->base;
+	$sr = ldap_add($this->ds, $lkey, $arg);
 	if (!$sr) {
 		if (ldap_errno($this->ds) == 0x44) { 
          return "Entry already exists!";
 		} 
 		else { 
+			$this->helper->logit("ldap error with key=$lkey, arg=$arg",0);
 			return "LDAP ERROR - " . ldap_error($this->ds); 
 		}
     } 
     return "Saved new LDAP contact ";	
 }
 
-// Used by the factory reset function
+/**	
+ * Post a new tenant (OU) object
+ */
+public function AddNewTenant($tenant) {
+	unset ($this->ldapargs);
+	$this->ldapargs["objectclass"] = "organizationalUnit";
+	$this->ldapargs["ou"] = $tenant;
+	
+	$lkey = "ou=$tenant,"  . $this->addressbook . "," . $this->base;
+/**
+ * Check for Duplicate
+ */	
+	if ($this->dnGet($lkey)) {
+		return "Entry already exists!";
+	}
+/**
+ * Add it...
+ */
+
+	$sr = ldap_add($this->ds, $lkey, $this->ldapargs);
+	if (!$sr) {
+		if (ldap_errno($this->ds) == 0x44) { 
+		 	$this->helper->logit("ldap key collision with key=$lkey",0);
+         	return "Entry already exists!";
+		} 
+		else { 
+			$this->helper->logit("ldap error with key=$lkey",0);
+			return "LDAP ERROR - " . ldap_error($this->ds); 
+		}
+    } 
+    return "Saved new LDAP contact ";	
+}
+
+/**	
+ * Post a new Security object
+ */
+public function AddNewSimpleSecurityObject($tenant,$pwd) {
+
+	unset ($this->ldapargs);
+	$this->ldapargs["objectclass"][0] = "simpleSecurityObject";
+	$this->ldapargs["objectclass"][1] = "account";
+	$this->ldapargs["userPassword"] = $pwd;
+//	$this->ldapargs["cn"] = $tenant;
+	$lkey = "uid=$tenant,"  .  $this->base;
+/**
+ * Check for Duplicate
+ */	
+if ($this->dnGet($lkey)) {
+	return "Entry already exists!";
+}
+
+/**
+ * Add it...
+ */
+	$sr = ldap_add($this->ds, $lkey, $this->ldapargs);
+	if (!$sr) {
+		if (ldap_errno($this->ds) == 0x44) { 
+		 	$this->helper->logit("ldap key collision with key=$lkey",0);	
+         	return "Entry already exists!";
+		} 
+		else { 
+			$this->helper->logit("ldap error with key=$lkey",0);
+			return "LDAP ERROR - " . ldap_error($this->ds); 
+		}
+    } 
+    return "Saved new LDAP contact ";	
+}
+
+/**
+ * Delete an entry using the DN
+ */
+public function Delete($dn) {
+	$this->helper->logIt("LDAP delete exec with dn = $dn");
+	if ( ! ldap_delete($this->ds,$dn)) {
+	  $this->helper->logIt("LDAP delete error with dn=$dn");
+	  return "LDAP ERROR - " . ldap_error($this->ds);
+	}
+	return "Deleted $dn OK ";
+}
+
+/**
+ * Reset - delete all contacts
+ * Used by the factory reset function
+ */
 public function Clean() {
 	$sr=ldap_list($this->ds,$this->addressbook . "," . $this->base,"cn=*",array(""));
     $info = ldap_get_entries($this->ds, $sr);
@@ -88,6 +194,45 @@ public function Clean() {
 	return 1;
 }
 
+/**
+ * DeleteAttribute
+ * remove an attribute from an entry
+ *
+ * @param string $dn
+ * @param array $arg
+ * @return rc
+ */
+public function DeleteAttribute ($dn, $arg) {
+    if (! ldap_mod_del($this->ds,$dn,$arg)) {
+    	$this->helper->logIt("LDAP attribute delete error with dn=$dn");
+	  	return "LDAP ERROR - " . ldap_error($this->ds);
+    }
+    else {
+        return "Deleted $dn attribute OK ";
+    }
+ }
+
+ /**
+  * ModifyAttribute
+  * modify an attribute in an entry
+  *
+  * @param string $dn
+  * @param array $arg
+  * @return rc
+  */
+ public function ModifyAttribute ($dn, $arg) {
+	if (! ldap_mod_replace($this->ds,$dn,$arg)) {  
+    	$this->helper->logIt("LDAP attribute modify attribute error with dn=$dn");
+	  	return "LDAP ERROR - " . ldap_error($this->ds);
+	}
+	else { 
+		return "Modifyed $dn attribute OK ";
+	} 	
+ }
+
+/**
+ * End LDAP session
+ */
 public function Close() {
 	ldap_close($this->ds);
 	return 1;

@@ -14,7 +14,11 @@
 // | Author: CoCoSoft                                                           |
 // +-----------------------------------------------------------------------+
 //
-//include("ip_helper_functions.php"); 
+
+//
+// Calculate disk recording storage used by each tenant and store it into the tenant record
+//
+
 include("localvars.php");
 $recvals = array();
 
@@ -34,19 +38,20 @@ try {
         $recvals[ $row['pkey']] ['recused'] = 0;
         $cmd = 'du -ch /opt/sark/media/recordings/*/*' . $row['pkey'] . '*|grep -i total';
         $ret = `$cmd`;
-        preg_match(" /^(\d*)/ ",$ret,$matches); 
+        preg_match(" /^(\d*\.?\d[1,2]?\w)/ ",$ret,$matches); 
         if ($matches[1]) {
             $recvals[$row['pkey']] ['recused'] = $matches[1];
         }    	
     }
-    print_r($recvals);
 //
 //  update the tenant rows with the latest usage values
 //  
     foreach ($recvals as $key=>$item) {
         echo "key=$key,value=" . $item['recused'] ." \n";
+        
         $res = $dbh->prepare("UPDATE cluster SET recused = ? WHERE pkey = ?");
         $res->execute(array($item['recused'],$key));
+
     }
 
     /*** close the database connection ***/

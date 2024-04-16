@@ -1,0 +1,17 @@
+#
+#  You will need to upload the CAcertificate to your certs folder (the first stanza below)
+#  Your Keyfile and your certificate are the same ones you uploaded to SARK for HTTPS so no need to change them
+# 
+# apply this ldif with
+# ldapmodify -Y EXTERNAL   -H ldapi:/// -f /opt/sark/cache/ldapCertSetup.ldif
+#
+
+dn: cn=config
+replace: olcTLSCACertificateFile
+olcTLSCACertificateFile: /etc/ssl/certs/DigiCertCA.crt
+-
+replace: olcTLSCertificateKeyFile
+olcTLSCertificateKeyFile: /etc/ssl/private/ssl-cert-sark-customer.key
+-
+replace: olcTLSCertificateFile
+olcTLSCertificateFile: /etc/ssl/certs/ssl-cert-sark-customer.pem

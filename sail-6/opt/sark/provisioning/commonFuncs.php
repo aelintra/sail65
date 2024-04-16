@@ -282,9 +282,12 @@ logIt("BLF iteration for phonepkey=$phonepkey, devpkey=$devpkey");
  *  Polycoms are different
  */ 
 function polycomSubConfig($mac,$fname,$db) {
-
+/**
+ * HA clusters are gone in the cloud world
+ * 
 	global $haclusterip;
 	global $hausecluster;
+*/
 	global $local;
 	
 	$retstring = NULL;		
@@ -355,12 +358,20 @@ function polycomSubConfig($mac,$fname,$db) {
 		$global = $db->query("select * from globals")->fetch();
 
 	} catch (Exception $e) {
-		logIt("Unable to retrieve cluster values");
+		logIt("Unable to retrieve Global values");
 	}
+/**
+ * HA clusters are gone in the cloud world
+ * 
 	$haclusterip = $global['HACLUSTERIP'];
 	$hausecluster = $global['HAUSECLUSTER'];
-
-// substitute real values into the output	
+ */
+/** 
+ * 
+ * substitute real values into the output
+ * 
+*/
+ 	
 	$retstring = preg_replace ( '/\$localip/', ret_localip($thisextConfig->provisionwith, 'IPV4'), $retstring);
 	$retstring = preg_replace ( '/\$desc/', $thisextConfig->desc, $retstring);
 	$retstring = preg_replace ( '/\$password/', $thisextConfig->passwd, $retstring);
@@ -439,9 +450,13 @@ function getBlf() {
  * get the IP
  */	
 function ret_localip($provisionwith, $protocol) {
-	
+
+/**
+ * HA clusters are gone in the cloud world
+ * 
   global $haclusterip;
   global $hausecluster;
+ */
   global $local;
   global $externip;
   global $fqdn;
@@ -495,14 +510,17 @@ function ret_localip($provisionwith, $protocol) {
 	return $nethelper->get_externip();
   }
  
- // ToDo sort out IPV6 for clusters. 
- 
+ /**
+ * HA clusters are gone in the cloud world
+ * 
   if ($haclusterip) {
 	if ( $hausecluster == "YES" ) {
 	  logit ("Returning $haclusterip"); 
 	  return $haclusterip;
 	}
   }
+ */
+
   logit ("endpoint to be provisioned is local");
   logit ("Returning local IPV4 IP - " . $nethelper->get_localIPV4());	
   return $nethelper->get_localIPV4();

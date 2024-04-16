@@ -1,6 +1,6 @@
 <?php
 // +-----------------------------------------------------------------------+
-// |  Copyright (c) CoCoSoft 2005-                                 |
+// |  Copyright (c) CoCoSoft 2005-10                                  |
 // +-----------------------------------------------------------------------+
 // | This file is free software; you can redistribute it and/or modify     |
 // | it under the terms of the GNU General Public License as published by  |
@@ -14,16 +14,20 @@
 // | Author: CoCoSoft                                                           |
 // +-----------------------------------------------------------------------+
 //
-//include("ip_helper_functions.php"); 
-include("generated_file_banner.php");
-include("localvars.php");
 
-include ("/opt/sark/php/config.php");
-include ("/opt/sark/php/srkDbClass");
-include ("/opt/sark/php/srkHelperClass");
-include ("/opt/sark/php/srkGenClass");
+include("/opt/sark/php/srkNetHelperClass");
 
+$net = new nethelper();
 
-$run = new genAsteriskObjects();
-$run->genAsterisk();
-?>
+	echo "interfacename " . $net->get_interfaceName() . "\n";
+	echo "localIPV4 " . $net->get_localIPV4() . "\n";
+	echo "networkIPV4 " . $net->get_networkIPV4() . "\n";
+	echo "networkGw " . $net->get_networkGw() . "\n"; 
+	echo "networkCIDR " . $net->get_networkCIDR() . "\n";
+	echo "networkBrd " . $net->get_networkBrd() . "\n";
+	echo "networkMask " . $net->get_netMask() . "\n";
+	echo "IPV6LLA " . $net->get_IPV6LLA() . "\n";
+	echo "IPV6ULA " . $net->get_IPV6ULA() . "\n";
+	echo "IPV6GUA " . $net->get_IPV6GUA() . "\n";
+
+?>		

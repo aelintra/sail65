@@ -25,18 +25,37 @@ Class sarkldap {
 	protected $myPanel;
 	protected $dbh;
 	protected $helper;
+	protected $ldap;
+	protected $ouTenant = NULL;
 	protected $validator;
 	protected $invalidForm;
 	protected $error_hash = array();
 	protected $log = NULL;	
 	
 public function showForm() {
-//	print_r($_POST);
+
 	$this->myPanel = new page;
-	$this->dbh = DB::getInstance();
 	$this->helper = new helper;
-	$this->ldap = new ldaphelper;
-	
+	$this->ldap = new ldaphelper();
+	$this->dbh = DB::getInstance();
+
+	$res = $this->dbh->query("SELECT LDAPOU FROM globals")->fetch(PDO::FETCH_ASSOC);
+	$ldapOu = $res['LDAPOU'];
+	$this->ldap->addressbook = 'ou=' . $res['LDAPOU'];
+
+//	 get the addressbook OU (the tenant) for this instance (if it exists)
+
+	if (!empty($_SESSION)) {			
+		if ($_SESSION['user']['pkey'] != 'admin') {	
+			$usql = $this->dbh->prepare("SELECT cluster FROM user where pkey = ?");
+			$usql->execute(array($_SESSION['user']['pkey']));
+			$res = $usql->fetch();		
+			if 	(array_key_exists('cluster',$res) ) {
+				$this->ldap->addressbook = 'ou=' . $res['cluster'] . ',ou=' . $ldapOu;
+			}			
+		}
+	}
+
 	if (!$this->ldap->Connect()) {
 		$this->message = "ERROR - Could not connect to LDAP";
 	}
@@ -59,6 +78,10 @@ public function showForm() {
 
 	if (isset($_POST['save']) || isset($_POST['endsave'])) { 
 		$this->saveNew();				
+	}	
+
+	if (isset($_REQUEST['delete'])) { 
+		$this->deleteRow(); 		
 	}	
 	
 	if (!empty($_POST['upimgclick'])) {
@@ -129,26 +152,20 @@ private function showMain() {
 
 	echo '<thead>' . PHP_EOL;	
 	echo '<tr>' . PHP_EOL;
-	
 
+	$this->myPanel->aHeaderFor('cluster');
 	$this->myPanel->aHeaderFor('surname'); 
-
 	$this->myPanel->aHeaderFor('forename'); 
-
-	$this->myPanel->aHeaderFor('phone',false,'w3-hide-small');
-	
-	$this->myPanel->aHeaderFor('mobile',false,'w3-hide-small');
-	
+	$this->myPanel->aHeaderFor('phone',false,'w3-hide-small');	
+	$this->myPanel->aHeaderFor('mobile',false,'w3-hide-small');	
 	$this->myPanel->aHeaderFor('home',false,'w3-hide-small');
-	
-	
+	$this->myPanel->aHeaderFor('organisation',false,'w3-hide-small');
+
 	if ($table == "ldaptable") {
 		$this->myPanel->aHeaderFor('del',false,'delcol');
 	}
-//	$this->myPanel->aHeaderFor('nohead',false,'w3-hide-medium w3-hide-large');
 
-
-	$search_arg = array("uid","givenname", "sn", "telephoneNumber", "mobile", "homePhone", "cn");
+	$search_arg = array("uid","givenname", "sn", "telephoneNumber", "mobile", "homePhone", "o", "cn");
 	$result = $this->ldap->Search($search_arg);
 
 
@@ -162,7 +179,18 @@ private function showMain() {
 //print_r($result);
 	for ($i=0; $i<$result["count"]; $i++) {
 		
-		echo '<tr id="' .  $result[$i]["uid"][0] . '">'. PHP_EOL; 	
+// dn appears a level up in the array hierarchy		
+		$dn = $result[$i]["dn"];
+		
+		echo '<tr id="' . $dn . '">'. PHP_EOL;
+
+// pull the lowest ou from the dn.   It should be the tenant.
+		preg_match("/ou=(\w+)/",$dn,$matches);
+		if (!empty($matches[1])) {
+			$tenant = $matches[1];
+		}
+		
+		echo '<td>' . $tenant  . '</td>' . PHP_EOL;
 
 		echo '<td>' . $result[$i]["sn"][0]  . '</td>' . PHP_EOL;
 
@@ -173,7 +201,6 @@ private function showMain() {
 			echo '<td class="w3-hide-small"></td>' . PHP_EOL;			
 		}
 
-				 
 		if (isset($result[$i]["telephonenumber"][0])) {
 			echo '<td class="w3-hide-small">' . $result[$i]["telephonenumber"][0]  . '</td>' . PHP_EOL;				
 		}
@@ -187,21 +214,24 @@ private function showMain() {
 		else {
 			echo '<td class="w3-hide-small"></td>' . PHP_EOL;
 		}	
-		
-			
+					
 		if (isset($result[$i]["homephone"][0])) {
 			echo '<td class="w3-hide-small">' .  $result[$i]["homephone"][0]  . '</td>' . PHP_EOL;
 		}
 		else {
 			echo '<td class="w3-hide-small"></td>' . PHP_EOL;
 		}
-		
-
-		if ($table == "ldaptable") {
-			$get = '?uid=' . $result[$i]["uid"][0];		
-			$this->myPanel->ajaxdeleteClick($get);		 
-			echo '</td>' . PHP_EOL;
+	
+		if (isset($result[$i]["o"][0])) {
+			echo '<td class="w3-hide-small">' .  $result[$i]["o"][0]  . '</td>' . PHP_EOL;
 		}
+		else {
+			echo '<td class="w3-hide-small"></td>' . PHP_EOL;
+		}
+
+		$encodedn = urlencode($dn);
+
+		$this->myPanel->deleteClick($_SERVER['PHP_SELF'],$encodedn);
 		echo '</tr>'. PHP_EOL;
 	}
 
@@ -226,12 +256,23 @@ private function showNew() {
 	echo '<form id="sarkldapForm" action="' . $_SERVER['PHP_SELF'] . '" method="post">';
 	
 	$this->myPanel->internalEditBoxStart();
+
+	echo '<div class="cluster">';
+	echo '<div class="cluster w3-margin-bottom">';
+    $this->myPanel->aLabelFor('cluster','cluster');
+    echo '</div>';
+	$this->myPanel->selected = 'default';
+	$this->myPanel->displayCluster();
+	$this->myPanel->aHelpBoxFor('cluster');
+	echo '</div>';
 	
 	$this->myPanel->displayInputFor('surname','text');
 	$this->myPanel->displayInputFor('forename','text',null,'givenname');
+	$this->myPanel->displayInputFor('org','text');
 	$this->myPanel->displayInputFor('ext','number',null,'phone');
 	$this->myPanel->displayInputFor('mobile','number');
 	$this->myPanel->displayInputFor('home','text');
+
 
 	echo '</div>';
 
@@ -252,6 +293,8 @@ private function saveNew() {
     $this->validator->addValidation("mobile","num","Mobile number must be numeric with no spaces");   
 
     if ($this->validator->ValidateForm()) {
+		$this->ldap->addressbook = "ou=" . $_POST['cluster'] . ",ou=" . $this->ldap->baseou;
+
 		$ldapargs["sn"] = $_POST['surname'];
 		
 		if (isset($_POST['givenname']) && $_POST['givenname'] != "") {			
@@ -260,6 +303,9 @@ private function saveNew() {
 		}
 		else {
 			$ldapargs["cn"] = $ldapargs["sn"];
+		}
+		if (isset($_POST['org']) && $_POST['phone'] != "") {
+			$ldapargs["o"] = $_POST['org'];
 		}
 		if (isset($_POST['phone']) && $_POST['phone'] != "") {
 			$ldapargs["telephonenumber"] = $_POST['phone'];
@@ -363,16 +409,35 @@ private function doUpload() {
 			
 }
 
+
+
+private function deleteRow() {
+	
+	  $dn = urldecode($_REQUEST['pkey']);
+	  $this->helper->logIt("LDAP delete exec with dn = $dn");
+	  if ( ! ldap_delete($this->ldap->ds,$dn)) {
+		$this->helper->logIt("LDAP delete error with dn=$dn");
+		$this->message = "LDAP ERROR - " . ldap_error($this->ldap->ds);
+	  }
+
+}
+
 private function array_orderby() {
     $args = func_get_args();
     $data = array_shift($args);
     foreach ($args as $n => $field) {
         if (is_string($field)) {
             $tmp = array();
-            foreach ($data as $key => $row)
-                $tmp[$key] = $row[$field];
-            $args[$n] = $tmp;
-            }
+            foreach ($data as $key => $row) {
+				if (! empty($row[$field])) {
+                	$tmp[$key] = $row[$field];
+				}
+				else {
+					$tmp[$key] = NULL;
+				}
+				$args[$n] = $tmp;
+			}
+        }
     }
     $args[] = &$data;
     call_user_func_array('array_multisort', $args);

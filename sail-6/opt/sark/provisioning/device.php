@@ -3,8 +3,14 @@ include "settings.php";
 include "commonFuncs.php";
 include "/opt/sark/php/srkNetHelperClass";
 
+/**
+ * HA clusters are gone in the cloud world
+ * 
 global $haclusterip;
 global $hausecluster;
+*/
+
+global $tenant;
 global $externip;
 global $fqdn;
 global $fqdnprov;
@@ -13,9 +19,7 @@ global $blfKeys;
 global $local;
 global $loglevel;
 
-
-//global $masterkey;
-
+$tenant = "default";
 $descriptor=false;
 $retstring = NULL;
 $mac=NULL;
@@ -33,26 +37,37 @@ $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
 // get the global env settings we need
 try {	  
-  	$global = $db->query("select BINDPORT,EDOMAIN,FQDN,FQDNPROV,HACLUSTERIP,HAUSECLUSTER,LDAPBASE,LOGLEVEL,PADMINPASS,PUSERPASS,TLSPORT from globals")->fetch();
+  	$global = $db->query("select * from globals")->fetch();
 
 } catch (Exception $e) {
   $errorMsg = $e->getMessage();
-  logIt("Unable to retrieve cluster values for $mac  - DB error $errorMsg");
+  logIt("Unable to retrieve Global values for $mac  - DB error $errorMsg");
   send404();
   exit(1);
 }
 if (empty($global)) {
-  logIt("Unable to retrieve cluster values - DB may be locked");
+  logIt("Unable to retrieve Global values - DB may be locked");
   send404();
   exit(1);
 }
+/**
+ * HA clusters are gone in the cloud world
+ * 
 $haclusterip = $global['HACLUSTERIP'];
 $hausecluster = $global['HAUSECLUSTER'];
+ */
+
 $bindport = $global['BINDPORT'];
 $externip = $global['EDOMAIN'];
 $fqdnprov = $global['FQDNPROV'];
 $fqdn = $global['FQDN'];
+$ldapanonbind = $global['LDAPANONBIND'];
 $ldapbase = $global['LDAPBASE'];
+$ldaphost = $global['LDAPHOST'];
+$ldapou = $global['LDAPOU'];
+$ldapuser = NULL;
+$ldapropwd = NULL;
+$ldaptls = $global['LDAPTLS'];
 $loglevel = $global['LOGLEVEL'];
 $tlsport = $global['TLSPORT'];
 $bindport = $global['BINDPORT'];
@@ -194,10 +209,18 @@ try {
 	$configs = NULL;
   }
   else {
-	$configs = $db->prepare('select pkey,provision,device,protocol,provisionwith,transport,devicemodel,desc,firstseen,lastseen,location,passwd,sndcreds from IPphone where lower(macaddr) = ? COLLATE NOCASE limit 1');
+	$configs = $db->prepare('select * from IPphone where lower(macaddr) = ? COLLATE NOCASE limit 1');
 	$configs->execute(array($mac));
 	$thisConfig = $configs->fetchObject();
 	$configs = NULL;
+/**
+ * fetch the tenant record as well.   It may, or may not be needed but it's easier to get it here in the same try scope.
+ */
+	$cluster = $db->prepare('select pkey,ldapropwd from cluster where pkey = ?');
+	$cluster->execute(array($thisConfig->cluster));
+	$thisCluster = $cluster->fetchObject();
+	$cluster = NULL;
+
 // update the phone model (it may have changed or it may not be present yet)
 // ignore VXT phones
  	if (!preg_match(" /VXT/ ", $thisConfig->device)) {
@@ -250,7 +273,30 @@ if (preg_match('/\$localip/',$retstring)) {
 }
 $retstring = preg_replace ( '/\$bindport/', $bindport, $retstring);
 $retstring = preg_replace ( '/\$tlsport/', $tlsport, $retstring);
+
 $retstring = preg_replace ( '/\$ldapbase/', $ldapbase, $retstring);
+$retstring = preg_replace ( '/\$ldaphost/', $ldaphost, $retstring);
+$retstring = preg_replace ( '/\$ldapou/', $ldapou, $retstring);
+$retstring = preg_replace ( '/\$ldaptenant/', $thisConfig->cluster, $retstring);
+
+/**
+ *  If anonymous bind is on, then set UID and PWD to NULL
+ *  If anonymous bind is off, then set UID and PWD to the values in the tenant/cluster
+ */
+
+if ($ldapanonbind == 'YES') {
+/**
+ * fetch the password from the tenant/cluster
+ */
+	$retstring = preg_replace ( '/\$ldapropwd/', '', $retstring);
+	$retstring = preg_replace ( '/\$ldaprouser/', '', $retstring);
+}
+else {
+	$retstring = preg_replace ( '/\$ldapropwd/', $thisCluster->ldapropwd, $retstring);
+	$ldapstringrouser = "uid=" . $thisConfig->cluster . "," . $ldapbase; 
+	$retstring = preg_replace ( '/\$ldaprouser/', $ldapstringrouser, $retstring);
+}
+
 $retstring = preg_replace ( '/\$padminpass/', $padminpass, $retstring);
 $retstring = preg_replace ( '/\$puserpass/', $puserpass, $retstring);
 

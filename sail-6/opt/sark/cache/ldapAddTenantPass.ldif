@@ -1,0 +1,8 @@
+#
+#  You should not need to use this.  You can run fixupTenantLdap.php and it will insert tenants and securitygroups for you. 
+#  If you do run this then you should replace $cluster with the name of your tenant and set a userPassword of your choosing.
+#
+dn: uid=$cluster,dc=ec2,dc=internal
+objectclass: account
+objectclass: simpleSecurityObject
+userPassword: c25vbcaeSDFXH1238

@@ -37,7 +37,9 @@ Class sarkglobal {
 		'cfwdextrnrule',
 		'cfwdprogress',
 		'clusterstart',
-		'cosstart',		
+		'cosstart',
+		'ldapanonbind',
+		'ldaptls',		
 		'playbeep',
 		'playtransfer',		
 		'proxy',
@@ -198,6 +200,7 @@ private function showMain() {
 	$this->myPanel->internalEditBoxStart();
 	$this->myPanel->subjectBar("General Settings");
   	
+	$this->myPanel->displayInputFor('sitename','number',$global['SITENAME']);   
 
   	$this->myPanel->displayPopupFor('countrycode',$global['COUNTRYCODE'],$country);  
 	
@@ -288,7 +291,8 @@ private function showMain() {
     $this->myPanel->radioSlide('callrecord1',$global['CALLRECORD1'],array('None','OTR','OTRR','In','Out','Both'));	
 // Place holder for mount options 
 //    $this->myPanel->displayInputFor('recmount','text',$global['RECMOUNT']);	
-    $this->myPanel->displayInputFor('recage','number',$global['RECAGE']);
+// recage remove in 6.2.0-39.   Function served by tenants now.
+//    $this->myPanel->displayInputFor('recage','number',$global['RECAGE']);
     $this->myPanel->displayInputFor('dynamicfeatures','text',$global['DYNAMICFEATURES']);
     $this->myPanel->displayInputFor('vmailage','number',$global['VMAILAGE']);
     $this->myPanel->displayInputFor('intringdelay','number',$global['INTRINGDELAY']);
@@ -300,17 +304,17 @@ private function showMain() {
 /*
  *       TAB DIVEND
  */
-	
+		
+	$this->myPanel->internalEditBoxStart();
+	$this->myPanel->subjectBar("LDAP Settings"); 
+	$this->myPanel->displayInputFor('ldaphost','text',$global['LDAPHOST']);  
+	$this->myPanel->displayInputFor('ldapbase','text',$global['LDAPBASE']);
+	$this->myPanel->displayInputFor('ldapou','text',$global['LDAPOU']);
+	$this->myPanel->displayInputFor('ldapuser','text',$global['LDAPUSER']);
+	$this->myPanel->displayInputFor('ldappass','password',$global['LDAPPASS']);
+	$this->myPanel->displayBooleanFor('ldapanonbind',$global['LDAPANONBIND']);
+	echo '</div>';
 
-	if ($global['CLUSTER'] == 'OFF') {
-		$this->myPanel->internalEditBoxStart();
-		$this->myPanel->subjectBar("LDAP Settings");   
-		$this->myPanel->displayInputFor('ldapbase','text',$global['LDAPBASE']);
-		$this->myPanel->displayInputFor('ldapou','text',$global['LDAPOU']);
-		$this->myPanel->displayInputFor('ldapuser','text',$global['LDAPUSER']);
-		$this->myPanel->displayInputFor('ldappass','text',$global['LDAPPASS']);
-		echo '</div>';
-	}
 
 /*
  * choose SIP channel driver
@@ -415,13 +419,12 @@ private function saveEdit() {
  */
 			
 			$active = 'yes';
-			$ldap = 'no';
-			if ($tuple['cluster'] == 'OFF') {
-				$active = 'no';
-				$ldap = 'yes';				
-			}
 			$res=$this->dbh->exec("UPDATE Panel SET active='" . $active . "' WHERE pkey=210");
-			$res=$this->dbh->exec("UPDATE Panel SET active='" . $ldap . "' WHERE pkey=265");
+/*
+ *	Force Directory 'ON' for upgraded Multi-tenant systems
+ */
+			$res=$this->dbh->exec("UPDATE Panel SET active='yes' WHERE pkey=265");
+
 /*
  * 
  */ 			

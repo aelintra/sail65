@@ -2,18 +2,16 @@
 * * * * * root php /opt/sark/generator/srktimer.php >/dev/null 2>&1 
 
 # SARK queue mover in ARC
-* * * * * root perl /opt/sark/scripts/srkcronqmove.pl >/dev/null 2>&1
+*/5 * * * * root perl /opt/sark/scripts/srkcronqmove.pl >/dev/null 2>&1
 
 # SARK spin off regression copies
 0 4 * * * root sh /opt/sark/scripts/spin.sh >/dev/null 2>&1
 
-# SARK age regressions
+# SARK age snap/backup regressions
 0 4 * * * root sh /opt/sark/scripts/age.sh >/dev/null 2>&1
 
-#
-# HD pruning disabled
-#
-# SARK HD pruning
+# HotDesk pruning (disabled) - enable if needed
+# SARK HotDesk pruning enable if needed
 #01 * * * * root perl /opt/sark/scripts/aelhdlon.pl prune >/dev/null 2>&1
 
 # SARK VMAIL ageing
@@ -21,11 +19,18 @@
 
 #sark disk space pruner (ppc and arm)
 */10 * * * * root perl /opt/sark/scripts/diskabs.pl >/dev/null 2>&1
-#SARK age call recordings daily at 2:00AM
-0 2 * * * root sh /opt/sark/scripts/srkagerecordings.sh >/dev/null 2>&1
 
-#run an internet speed test once every day
-#0 0 * * * root /usr/bin/speedtest-cli --simple  > /opt/sark/cache/speedtest 
+#SARK age call recordings daily at 2:00AM
+0 2 * * * root bash /opt/sark/scripts/srkagerecordings.sh >/dev/null 2>&1
+
+#SARK age grace recordings daily at 3:00AM
+0 3 * * * root sh /opt/sark/scripts/srkagegracerecordings.sh >/dev/null 2>&1
+
+#SARK calculate recordings storage used by each tenant daily
+0 3 * * * root php /opt/sark/generator/srkManageRecs.php >/dev/null 2>&1
+
+#recording offload every 10 minutes
+*/10 * * * * root sh /opt/sark/scripts/srkoffload_simple.sh >/dev/null 2>&1
 
 #fetch manufacturer MAC list once a week
 0 0 * * 0 root sh /opt/sark/scripts/getmaclist.sh

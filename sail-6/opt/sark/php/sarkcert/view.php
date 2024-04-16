@@ -20,7 +20,7 @@
 
 Class sarkcert {
 
-        protected $message;
+        protected $message = "";
         protected $head = "Certificates";
         protected $certFile = "/etc/ssl/certs/ssl-cert-sark-customer.pem";
         protected $keyFile = "/etc/ssl/private/ssl-cert-sark-customer.key";
