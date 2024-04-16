@@ -1,3 +1,8 @@
+sail (6.5.0-4) UNRELEASED; urgency=low
+
+   - sync 65 with 6.2 changes
+
+ -- CoCoSoft <admin@aelintra.com>  Fri, 13  Oct 2023 18:00:00 +0000
 sail (6.5.0-3) UNRELEASED; urgency=low
 
    - Third packaging of the PJSIP release
