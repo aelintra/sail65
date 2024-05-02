@@ -176,6 +176,8 @@ private function showMain() {
 		echo '<td class="icons">' . $row['technology'] . '</td>' . PHP_EOL;
 		
 		$latency = 'N/A';
+		$hostip = 'N/A';
+		$status = 'N/A';
 				
 		$searchkey = $row['peername'];
 		if ($row['active'] == 'YES' && $this->astrunning) {
