@@ -34,6 +34,7 @@ Class sarktrunk {
 	protected $astrunning=false;	
 	protected $span = 1;
 	protected $smartlink;
+	protected $sipdriver;
 	protected $sip_peers = array();
 	protected $iax_peers = array();
 	protected $myBooleans = array(
@@ -54,6 +55,9 @@ public function showForm() {
 	if ( $this->helper->check_pid() ) {	
 		$this->astrunning = true;
 	}
+
+	$res = $this->dbh->query("SELECT SIPDRIVER FROM globals where pkey = 'global'")->fetch(PDO::FETCH_ASSOC);
+	$this->sipdriver = $res['SIPDRIVER'];
 	
 //	$this->myPanel->pagename = 'Trunks';
 		
@@ -569,16 +573,16 @@ private function showEdit() {
 	echo '</div>';    
 
     if ($tuple['technology'] == 'SIP') {
-     	$this->myPanel->displayInputFor('peername','text',$tuple['pkey']);
-
-     	$transportArray=array('udp','tcp','tls');
+		$this->myPanel->displayInputFor('peername','text',$tuple['pkey']);
+		$transportArray=array('udp','tcp','tls');
 		$this->myPanel->radioSlide('transport',$tuple['transport'],$transportArray);
-
-    	echo '<div id="peer">';
-		$this->myPanel->aLabelFor('sipiaxpeer');
-		$this->myPanel->displayFile($tuple['sipiaxpeer'],"sipiaxpeer");
-		$this->myPanel->displayInputFor('register','text',$tuple['register']);
-		echo '</div>' . PHP_EOL;
+		if ($this->sipdriver != 'PJSIP') {
+			echo '<div id="peer">';
+			$this->myPanel->aLabelFor('sipiaxpeer');
+			$this->myPanel->displayFile($tuple['sipiaxpeer'],"sipiaxpeer");
+			$this->myPanel->displayInputFor('register','text',$tuple['register']);
+			echo '</div>' . PHP_EOL;
+		}
 
 		$fileData = $this->helper->getPjsipTrunkInstance($tuple['pkey']);
 

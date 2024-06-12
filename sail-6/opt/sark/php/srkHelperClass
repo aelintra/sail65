@@ -524,7 +524,7 @@ public function setPjsipTrunkInstance($key,$data) {
 
 	$targetFile = PJSIP . $key . '_' . PJSIP_TRUNK;
 	if (empty($data)) {		
-		$this->createPjsipPTrunkInstance($key);
+		$this->createPjsipTrunkInstance($key);
 	}		
 	$fh = fopen($targetFile, 'w') or die("Could not open file $targetFile!");
 	fwrite($fh,$data) or die("Could not write to file $targetFile !");
