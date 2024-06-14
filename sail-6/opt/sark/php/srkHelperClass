@@ -506,9 +506,12 @@ public function createPjsipTrunkInstance($tuple) {
  * @param  array $tuple Trunk row
  * @return bool  
  */
-public function getPjsipTrunkInstance($key) {
+public function getPjsipTrunkInstance($tuple) {
 
-	$targetFile = PJSIP . $key . '_' . PJSIP_TRUNK;
+	$targetFile = PJSIP . $tuple['pkey'] . '_' . PJSIP_TRUNK;
+	if (!file_exists($targetFile)) {		
+		$this->createPjsipTrunkInstance($tuple);
+	}
 	if (file_exists($targetFile)) {
 		return file_get_contents($targetFile);
 	}
@@ -521,11 +524,8 @@ public function getPjsipTrunkInstance($key) {
  * @return bool  
  */
 public function setPjsipTrunkInstance($key,$data) {
-
-	$targetFile = PJSIP . $key . '_' . PJSIP_TRUNK;
-	if (empty($data)) {		
-		$this->createPjsipTrunkInstance($key);
-	}		
+	
+	$targetFile = PJSIP . $key . '_' . PJSIP_TRUNK;	
 	$fh = fopen($targetFile, 'w') or die("Could not open file $targetFile!");
 	fwrite($fh,$data) or die("Could not write to file $targetFile !");
 	fclose($fh);

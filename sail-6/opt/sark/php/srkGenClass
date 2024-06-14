@@ -240,9 +240,9 @@ private function genIax() {
 private function genPjsipConf() {
 
 // remove the old sark includes (if present)
-	$rc = $this->helper->request_syscmd ("/usr/bin/sed -i '/include sark_pjsip/d' PJSIP_CONF >/dev/null 2>&1");
+	$rc = $this->helper->request_syscmd ("/usr/bin/sed -i '/include sark_pjsip/d' " . PJSIP_CONF . ">/dev/null 2>&1" );
 // append the current ones
-	$rc = $this->helper->request_syscmd ("/usr/bin/cat PJSIP_INCLUDES >> PJSIP_CONF");	
+	$rc = $this->helper->request_syscmd ("/usr/bin/cat " . PJSIP_INCLUDES . ' >> ' . PJSIP_CONF);	
 }
 
 private function genPjsipTransport() {

@@ -584,7 +584,7 @@ private function showEdit() {
 			echo '</div>' . PHP_EOL;
 		}
 
-		$fileData = $this->helper->getPjsipTrunkInstance($tuple['pkey']);
+		$fileData = $this->helper->getPjsipTrunkInstance($tuple);
 
 		if ($fileData) {
      		echo '<div id="pjsipuser">';   		
@@ -668,7 +668,7 @@ private function showEdit() {
 	}					  	 	
 	
 	echo '<input type="hidden" name="pkey" id="pkey" value="' . $tuple['pkey'] . '"  />' . PHP_EOL; 
-
+	echo '<input type="hidden" name="pjsipreg" id="pjsipreg" value="' . $tuple['pjsipreg'] . '"  />' . PHP_EOL;
 	echo '</div>';
 	$this->myPanel->responsiveClose();
 	
