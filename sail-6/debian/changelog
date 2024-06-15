@@ -1,8 +1,15 @@
+sail (6.5.0-5) UNRELEASED; urgency=low
+
+   - clean up template handling for chan_sip upgrades.  Changes to the generator and trunks
+
+ -- CoCoSoft <admin@aelintra.com>  Sat, 15  Jun 2024 18:00:00 +0000
+
 sail (6.5.0-4) UNRELEASED; urgency=low
 
    - sync 65 with 6.2 changes
 
  -- CoCoSoft <admin@aelintra.com>  Fri, 13  Oct 2023 18:00:00 +0000
+
 sail (6.5.0-3) UNRELEASED; urgency=low
 
    - Third packaging of the PJSIP release
