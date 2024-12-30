@@ -637,20 +637,6 @@ z_updater TEXT DEFAULT 'system',
 PRIMARY KEY (IPphone_pkey, COS_pkey)
 );
 
-/* Intrusion attempts */
-CREATE TABLE IF NOT EXISTS threat (
-pkey TEXT PRIMARY KEY,
-asn TEXT,
-firstseen TEXT,
-hits INTEGER,
-isp TEXT,
-lastseen TEXT,
-loc TEXT,
-z_created datetime,
-z_updated datetime,
-z_updater TEXT DEFAULT 'system'
-);
-
 /* messages */
 CREATE TABLE IF NOT EXISTS tt_help_core (
 pkey TEXT PRIMARY KEY,
@@ -714,32 +700,6 @@ perms TEXT DEFAULT 'view',			-- permissions view/update/create
 PRIMARY KEY (User_pkey, Panel_pkey)
 );
 
-
-
-/* multicast bcast */
-CREATE TABLE IF NOT EXISTS mcast (
-pkey TEXT PRIMARY KEY,
-mcastdesc TEXT,
-mcastip TEXT,
-mcastport TEXT,
-mcastlport TEXT,
-mcasttype TEXT,
-z_created datetime,
-z_updated datetime,
-z_updater TEXT DEFAULT 'system'
-);
-
-
-/* vendors by MAC deleted in 5.x
-CREATE TABLE IF NOT EXISTS vendorxref(
-pkey TEXT PRIMARY KEY, 
-intpkey TEXT,
-z_created datetime,
-z_updated datetime,
-z_updater TEXT DEFAULT 'system'
-);
-*/
-
 /* Fkey templates */
 CREATE TABLE IF NOT EXISTS Device_FKEY (
 pkey TEXT,
@@ -753,15 +713,6 @@ z_updated datetime,
 z_updater TEXT DEFAULT 'system',
 PRIMARY KEY (pkey, seq)
 );
-
-/* device templates managed by Aelintra - replaced with flag in 5.x
-CREATE TABLE IF NOT EXISTS Device_atl (
-pkey TEXT PRIMARY KEY,
-z_created datetime,
-z_updated datetime,
-z_updater TEXT DEFAULT 'system'
-);
-*/
 
 /* conference rooms */
 CREATE TABLE IF NOT EXISTS meetme (
@@ -784,24 +735,6 @@ pkey TEXT NOT NULL,
 relation TEXT
 );
 
-CREATE TABLE IF NOT EXISTS shorewall_blacklist (
-pkey integer PRIMARY KEY,
-source TEXT,
-comment TEXT,
-z_created datetime,
-z_updated datetime,
-z_updater TEXT DEFAULT 'system'
-);
-
-CREATE TABLE IF NOT EXISTS shorewall_whitelist (
-pkey integer PRIMARY KEY,
-fqdn TEXT,
-comment TEXT,
-z_created datetime,
-z_updated datetime,
-z_updater TEXT DEFAULT 'system'
-);
-
 CREATE TABLE IF NOT EXISTS clid_blacklist (
 pkey TEXT PRIMARY KEY,
 action TEXT DEFAULT 'Hangup',
@@ -818,6 +751,106 @@ act TEXT,
 owner TEXT,
 relation TEXT,
 tstamp datetime
+);
+
+CREATE TABLE IF NOT EXISTS sqlite_sequence(name,seq);
+
+CREATE TABLE IF NOT EXISTS "migrations"(
+  "id" integer primary key autoincrement not null,
+  "migration" varchar not null,
+  "batch" integer not null
+);
+
+CREATE TABLE IF NOT EXISTS "users"(
+  "id" integer primary key autoincrement not null,
+  "name" varchar not null,
+  "email" varchar not null,
+  "email_verified_at" datetime,
+  "endpoint" integer DEFAULT 0,
+  "password" varchar not null,
+  "remember_token" varchar,
+  "role" varchar DEFAULT NULL,
+  "tenant" varchar DEFAULT "default",
+  "created_at" datetime,
+  "updated_at" datetime
+);
+
+CREATE TABLE IF NOT EXISTS "personal_access_tokens"(
+  "id" integer primary key autoincrement not null,
+  "tokenable_type" varchar not null,
+  "tokenable_id" integer not null,
+  "name" varchar not null,
+  "token" varchar not null,
+  "abilities" text,
+  "last_used_at" datetime,
+  "expires_at" datetime,
+  "created_at" datetime,
+  "updated_at" datetime
+);
+
+
+CREATE TABLE IF NOT EXISTS "password_reset_tokens"(
+  "email" varchar not null,
+  "token" varchar not null,
+  "created_at" datetime,
+  primary key("email")
+);
+
+CREATE TABLE IF NOT EXISTS "sessions"(
+  "id" varchar not null,
+  "user_id" integer,
+  "ip_address" varchar,
+  "user_agent" text,
+  "payload" text not null,
+  "last_activity" integer not null,
+  primary key("id")
+);
+CREATE TABLE IF NOT EXISTS "cache"(
+  "key" varchar not null,
+  "value" text not null,
+  "expiration" integer not null,
+  primary key("key")
+);
+
+CREATE TABLE IF NOT EXISTS "cache_locks"(
+  "key" varchar not null,
+  "owner" varchar not null,
+  "expiration" integer not null,
+  primary key("key")
+);
+
+CREATE TABLE IF NOT EXISTS "jobs"(
+  "id" integer primary key autoincrement not null,
+  "queue" varchar not null,
+  "payload" text not null,
+  "attempts" integer not null,
+  "reserved_at" integer,
+  "available_at" integer not null,
+  "created_at" integer not null
+);
+
+CREATE TABLE IF NOT EXISTS "job_batches"(
+  "id" varchar not null,
+  "name" varchar not null,
+  "total_jobs" integer not null,
+  "pending_jobs" integer not null,
+  "failed_jobs" integer not null,
+  "failed_job_ids" text not null,
+  "options" text,
+  "cancelled_at" integer,
+  "created_at" integer not null,
+  "finished_at" integer,
+  primary key("id")
+);
+
+CREATE TABLE IF NOT EXISTS "failed_jobs"(
+  "id" integer primary key autoincrement not null,
+  "uuid" varchar not null,
+  "connection" text not null,
+  "queue" text not null,
+  "payload" text not null,
+  "exception" text not null,
+  "failed_at" datetime not null default CURRENT_TIMESTAMP
 );
 
 /* audit triggers */
@@ -1031,21 +1064,6 @@ BEGIN
    INSERT INTO master_audit(act,owner,relation,tstamp) VALUES ('DELETE', old.pkey, 'Route', datetime('now'));
 END;
 
-CREATE TRIGGER shorewall_blacklist_insert AFTER INSERT ON shorewall_blacklist
-BEGIN
-   UPDATE shorewall_blacklist set z_created=datetime('now'), z_updated=datetime('now') where pkey=new.pkey;
-   INSERT INTO master_audit(act,owner,relation,tstamp) VALUES ('INSERT', new.pkey, 'shorewall_blacklist', datetime('now'));   
-END;
-CREATE TRIGGER shorewall_blacklist_update AFTER UPDATE ON shorewall_blacklist
-BEGIN
-   UPDATE shorewall_blacklist set z_updated=datetime('now') where pkey=new.pkey;
-   INSERT INTO master_audit(act,owner,relation,tstamp) VALUES ('UPDATE', new.pkey, 'shorewall_blacklist', datetime('now'));
-END;
-CREATE TRIGGER shorewall_blacklist_delete AFTER DELETE ON shorewall_blacklist
-BEGIN
-   INSERT INTO master_audit(act,owner,relation,tstamp) VALUES ('DELETE', old.pkey, 'shorewall_blacklist', datetime('now'));
-END;
-
 CREATE TRIGGER User_insert AFTER INSERT ON User
 BEGIN
    UPDATE User set z_created=datetime('now'), z_updated=datetime('now') where pkey=new.pkey;
@@ -1138,21 +1156,6 @@ BEGIN
    INSERT INTO master_audit(act,owner,relation,tstamp) VALUES ('DELETE', old.pkey, 'lineIO', datetime('now'));
 END;
 
-CREATE TRIGGER mcast_insert AFTER INSERT ON mcast
-BEGIN
-   UPDATE mcast set z_created=datetime('now'), z_updated=datetime('now') where pkey=new.pkey;
-   INSERT INTO master_audit(act,owner,relation,tstamp) VALUES ('INSERT', new.pkey, 'mcast', datetime('now'));   
-END;
-CREATE TRIGGER mcast_update AFTER UPDATE ON mcast
-BEGIN
-   UPDATE mcast set z_updated=datetime('now') where pkey=new.pkey;
-   INSERT INTO master_audit(act,owner,relation,tstamp) VALUES ('UPDATE', new.pkey, 'mcast', datetime('now'));
-END;
-CREATE TRIGGER mcast_delete AFTER DELETE ON mcast
-BEGIN
-   INSERT INTO master_audit(act,owner,relation,tstamp) VALUES ('DELETE', old.pkey, 'mcast', datetime('now'));
-END;
-
 CREATE TRIGGER meetme_insert AFTER INSERT ON meetme
 BEGIN
    UPDATE meetme set z_created=datetime('now'), z_updated=datetime('now') where pkey=new.pkey;
@@ -1211,21 +1214,6 @@ END;
 CREATE TRIGGER speed_delete AFTER DELETE ON speed
 BEGIN
    INSERT INTO master_audit(act,owner,relation,tstamp) VALUES ('DELETE', old.pkey, 'speed', datetime('now'));
-END;
-
-CREATE TRIGGER threat_insert AFTER INSERT ON threat
-BEGIN
-   UPDATE threat set z_created=datetime('now'), z_updated=datetime('now') where pkey=new.pkey;
-   INSERT INTO master_audit(act,owner,relation,tstamp) VALUES ('INSERT', new.pkey, 'threat', datetime('now'));   
-END;
-CREATE TRIGGER threat_update AFTER UPDATE ON threat
-BEGIN
-   UPDATE threat set z_updated=datetime('now') where pkey=new.pkey;
-   INSERT INTO master_audit(act,owner,relation,tstamp) VALUES ('UPDATE', new.pkey, 'threat', datetime('now'));
-END;
-CREATE TRIGGER threat_delete AFTER DELETE ON threat
-BEGIN
-   INSERT INTO master_audit(act,owner,relation,tstamp) VALUES ('DELETE', old.pkey, 'threat', datetime('now'));
 END;
 
 /* system xref triggers */
@@ -1397,19 +1385,6 @@ END;
 CREATE TRIGGER lineIO_update_key AFTER UPDATE OF pkey ON lineIO
 BEGIN
    UPDATE master_xref set pkey=new.pkey where pkey=old.pkey AND relation='lineIO';
-END;
-
-CREATE TRIGGER mcast_xref_insert AFTER INSERT ON mcast
-BEGIN
-	INSERT INTO master_xref(pkey, relation) VALUES (new.pkey, 'mcast');
-END;
-CREATE TRIGGER mcast_xref_delete AFTER DELETE ON mcast
-BEGIN
-   DELETE from master_xref WHERE pkey=old.pkey AND relation='mcast'; 
-END;
-CREATE TRIGGER mcast_update_key AFTER UPDATE OF pkey ON mcast
-BEGIN
-   UPDATE master_xref set pkey=new.pkey where pkey=old.pkey AND relation='mcast';
 END;
 
 CREATE TRIGGER meetme_xref_insert AFTER INSERT ON meetme

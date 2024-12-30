@@ -503,15 +503,12 @@ public function createPjsipTrunkInstance($tuple) {
 
 /**
  * get named pjsip template
- * @param  array $tuple Trunk row
+ * @param  str $key Trunk row
  * @return bool  
  */
-public function getPjsipTrunkInstance($tuple) {
+public function getPjsipTrunkInstance($key) {
 
-	$targetFile = PJSIP . $tuple['pkey'] . '_' . PJSIP_TRUNK;
-	if (!file_exists($targetFile)) {		
-		$this->createPjsipTrunkInstance($tuple);
-	}
+	$targetFile = PJSIP . $key . '_' . PJSIP_TRUNK;
 	if (file_exists($targetFile)) {
 		return file_get_contents($targetFile);
 	}

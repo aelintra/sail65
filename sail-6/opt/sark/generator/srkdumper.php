@@ -1,6 +1,6 @@
 <?php
 // +-----------------------------------------------------------------------+
-// |  Copyright (c) CoCoSoft 2005-10                                  |
+// |  Copyright (c) KoKoSoft 2024                                  |
 // +-----------------------------------------------------------------------+
 // | This file is free software; you can redistribute it and/or modify     |
 // | it under the terms of the GNU General Public License as published by  |
@@ -11,7 +11,7 @@
 // | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the          |
 // | GNU General Public License for more details.                          |
 // +-----------------------------------------------------------------------+
-// | Author: CoCoSoft                                                           |
+// | Author: KoKo                                                      |
 // +-----------------------------------------------------------------------+
 // 
 
@@ -22,9 +22,36 @@ $sysTables = array(
 	"mfgmac"  			=> true,
 	"Panel"  			=> true,
 	"PanelGroup"  		=> true,
-	"PanelGroupPanel"  	=> true,
+	"PanelGroupPanel"  	=> true
+);
+
+$ignoreTables = array(
+/**
+ * Ignore No longer used tables which may be present in an upgrade
+ */
+	"undolog"  			=> true,
+	"tt_help_user"  	=> true,
 	"vendorxref"  		=> true,
-	"Device_atl"  		=> true
+	"device_atl"  		=> true,
+	"master_xref"  		=> true,
+	"master_audit"  	=> true,
+	"mcast" 		 	=> true,
+	"shorewall_blacklist" 		 	=> true,
+	"shorewall_whitelist" 		 	=> true,
+	"tt_help_core"  	=> true,
+	"undolog"  			=> true,
+);
+$laravelTables = array(
+/**
+ * Laravel ephemeral stuff.  Create but don't populate
+ */
+	"cache"  			=> true,
+	"cache_locks"  		=> true,
+	"job_batches"  		=> true,
+	"jobs"  			=> true,
+	"password_reset_tokens"  	=> true,
+	"personal_access_tokens"  	=> true,
+	"sessions"  		=> true
 );
      
 $prefix='/last_'; 
@@ -89,31 +116,12 @@ if (isset ($argv[2])) {
  * get a column list for each table
  */		
 	foreach ($tables as $table) {
-
-//	undolog and tt_help_user are gone in V4 - ignore them if this is a V3 upgrade
-		if ( $table['name'] == 'undolog' || $table['name'] == 'tt_help_user') {
+/**
+ * Ignore tables in the ignore list
+ */
+		if (isset($ignoreTables[$table['name']])) {			
 			continue;
-		} 
-		
-//  vendorxref, device_atl and netphone are gone in V5.x - ignore them
-		if ( $table['name'] == 'vendorxref' || $table['name'] == 'device_atl' || $table['name'] == 'netphone') {
-			continue;
-		} 
-
-//  ignore the master_xref table - it gets built by triggers
-	  	if ($table['name'] == 'master_xref') {
-	  		continue;
-	  	} 
-
- //  ignore the master_audit table on a reload.  It's no longer relevant to this copy
-	  	if ($table['name'] == 'master_audit') {
-	  		continue;
-	  	} 
-
-//  ignore the messages table on a reload.  It is always refreshed
-	  	if ($table['name'] == 'tt_help_core') {
-	  		continue;
-	  	} 	  	
+		} 	  	
 
 //  get the create sql from sqlite3
 		try {
@@ -130,6 +138,11 @@ if (isset ($argv[2])) {
 		}
 		$CREATE .= $sql; 
 		$CREATE .= ";\n\n";
+
+//	ignore laravel ephemeral data		
+		if (isset($laravelTables[$table['name']])) {			
+			continue;
+		} 	
 		
 //  ignore empty tables
 		$res = $dbh->query('select count(*) from ' . $table['name'] )->fetchColumn();
@@ -143,16 +156,14 @@ if (isset ($argv[2])) {
 
 
 //  get column metadata and table data 	
-		try {
-			$colrows = $dbh->query( "PRAGMA table_info(" . $table['name'] . ")" )->fetchall();
-			if ($table['name'] == 'IPphoneCOSopen'  ||  $table['name'] == 'IPphoneCOSclosed' 
-				|| $table['name'] == 'UserPanel' 	||  $table['name'] == 'PanelGroupPanel'
-				|| $table['name'] == 'IPphone_FKEY' ||  $table['name'] == 'Device_FKEY') {
-				$rows = $dbh->query( "SELECT * from " . $table['name'] )->fetchall();
-			}
-			else {
-				$rows = $dbh->query( "SELECT * from " . $table['name'] . " ORDER BY pkey" )->fetchall();
-			}
+		
+		$orderby = "";
+		$colrows = $dbh->query( "PRAGMA table_info(" . $table['name'] . ")" )->fetchall();
+		if (isset($table['pkey'])) {
+			$orderby = " ORDER BY pkey";
+		}
+		try {			
+			$rows = $dbh->query( "SELECT * from " . $table['name'] . $orderby )->fetchall();
 		}
 		catch (Exception $e) {
 			echo "Oops on select from " . $table['name'] . " $e\n";
