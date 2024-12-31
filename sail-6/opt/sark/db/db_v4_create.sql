@@ -770,7 +770,7 @@ CREATE TABLE IF NOT EXISTS "users"(
   "password" varchar not null,
   "remember_token" varchar,
   "role" varchar DEFAULT NULL,
-  "tenant" varchar DEFAULT "default",
+  "tenant" varchar DEFAULT 'default',
   "created_at" datetime,
   "updated_at" datetime
 );
