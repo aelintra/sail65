@@ -547,9 +547,6 @@ private function genFeatures() {
    	fclose($fh);
 }
 
-
-
-
 private function genVmail() {
 
 	$mailbox = array();
@@ -905,25 +902,7 @@ try {
 	$OUT .= "\texten => _*8XX.,1,Pickup(\${EXTEN:2}@PICKUPMARK)\n";
     	$OUT .= "\texten => " . $this->globals['OPERATOR'] . ",1,Goto(\${SYSOP},1)\n";
     	$OUT .= "\n";
-//
-//	Multicast page groups
-//
-	$sql = "SELECT * FROM mcast ORDER BY pkey";
-	$qRes = $this->dbh->query($sql);
-	$mcasts = $qRes->fetchAll();
-	$qRes = NULL;	
 
-	foreach ($mcasts as $mcast) {
-		$OUT .= "\texten => " . $mcast['pkey'] . ",1," . $mcast['mcasttype'] . "(MulticastRTP/";
-		if (!isset ($mcast['mcastlport'])) {
-			$OUT .= "basic/" . $mcast['mcastip'] . ":" . $mcast['mcastport'] . ")\n";
-		}
-		else {
-			$OUT .= "linksys/" . $mcast['mcastip'] . ":" . $mcast['mcastport'] . 
-				"/" . $mcast['mcastip'] . ":" . $mcast['mcastlport'] . ")\n";
-		}
-	}		
-	$OUT .= "\n";
 //
 //  Phones
 //
