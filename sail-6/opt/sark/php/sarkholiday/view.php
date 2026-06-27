@@ -31,6 +31,7 @@ Class sarkholiday {
 	
 public function showForm() {
 	
+	$this->setLocalTimezone();
 	$this->myPanel = new page;
 	$this->dbh = DB::getInstance();
 	$this->helper = new helper;
@@ -245,37 +246,10 @@ private function saveNew() {
 	$edd = date('d-m-Y');	
 
 
-// convert the inputs to Epoch time	
-    $dtsplit = preg_split('/-/',$sdd);
-	$hmsplit = preg_split('/:/',$shm);
+// convert the inputs to Epoch time (placeholders until user sets dates in edit)
+	$sepoch = $this->localToEpoch($sdd, $shm);
+	$eepoch = $this->localToEpoch($edd, $ehm);
 
-	$tm = new DateTime();
-	$tm-> setDate($dtsplit[2], $dtsplit[1], $dtsplit[0]);
-	$tm-> setTime($hmsplit[0], $hmsplit[1], 00);
-	$sepoch = $tm->getTimestamp();
-
-	$dtsplit = preg_split('/-/',$edd);
-	$hmsplit = preg_split('/:/',$ehm);
-
-	$tm-> setDate($dtsplit[2], $dtsplit[1], $dtsplit[0]);
-	$tm-> setTime($hmsplit[0], $hmsplit[1], 00);
-	$eepoch = $tm->getTimestamp();
-
-// check end > start		
-	if ($sepoch > $eepoch) {
-		$this->invalidForm = True;
-		$this->error_hash['schedinsertendtime'] = "End time must be after start time - " . date ('d-m-Y H:i:s', $sepoch) . " etime = " . date ('d-m-Y H:i:s', $eepoch);
-	}
-
-// check for overlap with existing rows in the same cluster (overlap between clusters is OK)
-	$sql = $this->dbh->prepare("SELECT * FROM Holiday WHERE cluster=? AND ? < etime AND stime < ?") ;
-	$sql->execute(array($tuple['cluster'],$sepoch,$eepoch));
-	$res = $sql->fetch();
-	if (!empty($res)) {
-		$this->invalidForm = True;
-		$this->error_hash['schedinsertoverlap'] = "Period overlaps an existing period in the same cluster stime = " . date ('d-m-Y H:i:s', $sepoch) . " etime = " . date ('d-m-Y H:i:s', $eepoch);
-	}
-			  	
 // update	
 	if (!$this->invalidForm) {
 		if (array_key_exists('route',$tuple)) {
@@ -353,7 +327,7 @@ private function showEdit() {
 	echo '<input type="text" class="datepicker w3-input w3-border w3-round" name="sdate" id="sdate" value="' . date('d-m-Y', $tuple['stime']) . '"  />' . PHP_EOL;
 	echo '<div class="w3-margin-bottom">';
 	echo '<br/>';	
-	$this->myPanel->displayInputFor("time",'time',date('H:i:s', $tuple['stime']),'stime');
+	$this->myPanel->displayInputFor("time",'time',date('H:i', $tuple['stime']),'stime');
 	echo '</div>';
 	echo '</div>';	
 	
@@ -365,7 +339,7 @@ private function showEdit() {
 	echo '<input type="text" class="datepicker w3-input w3-border w3-round" name="edate" id="edate" value="' . date('d-m-Y', $tuple['etime']) . '"  />' . PHP_EOL;
 	echo '<div class="w3-margin-bottom">';
 	echo '<br/>';
-	$this->myPanel->displayInputFor("time",'time',date('H:i:s', $tuple['etime']),'etime');
+	$this->myPanel->displayInputFor("time",'time',date('H:i', $tuple['etime']),'etime');
 	echo '</div>';
 	echo '</div>';
 
@@ -383,6 +357,7 @@ private function showEdit() {
 }
 private function saveEdit() {
 
+	$pkey = $_POST['pkey'];
 	$tuple = array();
 	$custom = array (
 		'sdate' => True,
@@ -412,35 +387,34 @@ private function saveEdit() {
 	}		
 
 
-// convert the inputs to Epoch time	
-    $dtsplit = preg_split('/-/',$sdd);
-	$hmsplit = preg_split('/:/',$shm);
+// convert the inputs to Epoch time
+	$sepoch = $this->localToEpoch($sdd, $shm);
+	$eepoch = $this->localToEpoch($edd, $ehm);
 
-	$tm = new DateTime();
-	$tm-> setDate($dtsplit[2], $dtsplit[1], $dtsplit[0]);
-	$tm-> setTime($hmsplit[0], $hmsplit[1], 00);
-	$sepoch = $tm->getTimestamp();
-
-	$dtsplit = preg_split('/-/',$edd);
-	$hmsplit = preg_split('/:/',$ehm);
-
-	$tm-> setDate($dtsplit[2], $dtsplit[1], $dtsplit[0]);
-	$tm-> setTime($hmsplit[0], $hmsplit[1], 00);
-	$eepoch = $tm->getTimestamp();
+	if ($sepoch === false) {
+		$this->invalidForm = True;
+		$this->error_hash['schedinsertstarttime'] = "Illegal start date/time $sdd $shm";
+	}
+	if ($eepoch === false) {
+		$this->invalidForm = True;
+		$this->error_hash['schedinsertendtime'] = "Illegal end date/time $edd $ehm";
+	}
 
 // check end > start		
-	if ($sepoch > $eepoch) {
+	if (!$this->invalidForm && $sepoch > $eepoch) {
 		$this->invalidForm = True;
 		$this->error_hash['schedinsertendtime'] = "End time must be after start time - stime = " . date ('d-m-Y H:i:s', $sepoch) . " etime = " . date ('d-m-Y H:i:s', $eepoch);
 	}
 
 // check for overlap with existing rows in the same cluster (overlap between clusters is OK)
+	if (!$this->invalidForm) {
 	$sql = $this->dbh->prepare("SELECT * FROM Holiday WHERE cluster=? AND ? < etime AND stime < ? and pkey != ?") ;
 	$sql->execute(array($tuple['cluster'],$sepoch,$eepoch,$pkey));
 	$res = $sql->fetch();
 	if (!empty($res)) {
 		$this->invalidForm = True;
 		$this->error_hash['schedinsertoverlap'] = "Period overlaps an existing period in the same Tenant stime = " . date ('d-m-Y H:i:s', $sepoch) . " etime = " . date ('d-m-Y H:i:s', $eepoch);
+	}
 	}
 			  	
 // update	
@@ -469,5 +443,35 @@ private function saveEdit() {
 		$this->invalidForm = True;
 		$this->message = "Validation Errors!";	
 	}		
+}
+
+private function setLocalTimezone() {
+	$tz = $this->getLocalTimezone();
+	date_default_timezone_set($tz);
+}
+
+private function getLocalTimezone() {
+	$tz = trim(@file_get_contents('/etc/timezone'));
+	if ($tz === '' || !in_array($tz, DateTimeZone::listIdentifiers())) {
+		$tz = date_default_timezone_get();
+	}
+	if ($tz === '' || !in_array($tz, DateTimeZone::listIdentifiers())) {
+		$tz = 'UTC';
+	}
+	return $tz;
+}
+
+private function localToEpoch($date, $time) {
+	$date = trim($date);
+	$time = trim($time);
+	$tz = new DateTimeZone($this->getLocalTimezone());
+	$tm = DateTime::createFromFormat('d-m-Y H:i:s', "$date $time", $tz);
+	if ($tm === false) {
+		$tm = DateTime::createFromFormat('d-m-Y H:i', "$date $time", $tz);
+	}
+	if ($tm === false) {
+		return false;
+	}
+	return $tm->getTimestamp();
 }
 }
