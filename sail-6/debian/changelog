@@ -1,3 +1,11 @@
+sail (6.5.0-10) UNRELEASED; urgency=medium
+
+   - Remove unused jquery-ui custom-build package.json (grunt 0.4.5) that
+     triggered Dependabot alerts CVE-2020-7729, CVE-2022-0436, CVE-2022-1537.
+     Runtime serves static JS/CSS only; Grunt was never used on the PBX.
+
+ -- KoKoSoft <admin@aelintra.com>  Mon, 26 Oct 2026 22:10:00 +0000
+
 sail (6.5.0-9) UNRELEASED; urgency=high
 
    - PHP2Shell (CVE-2026-109618 / CVE-2026-109619): on Ubuntu 24.04, postinst
