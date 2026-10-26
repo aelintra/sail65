@@ -1,0 +1,37 @@
+Format: 1.8
+Date: Mon, 26 Oct 2026 20:30:00 +0000
+Source: sail
+Binary: sail
+Architecture: all
+Version: 6.5.0-9
+Distribution: UNRELEASED
+Urgency: high
+Maintainer: CoCo <admin@aelintra.com>
+Changed-By: KoKoSoft <admin@aelintra.com>
+Description:
+ sail       - SARK  Asterisk Integration Layer (SAIL) - A fast, lightweight swi
+Changes:
+ sail (6.5.0-9) UNRELEASED; urgency=high
+ .
+    - PHP2Shell (CVE-2026-109618 / CVE-2026-109619): on Ubuntu 24.04, postinst
+      verifies libapache2-mod-php8.3 is at least 8.3.6-0ubuntu0.24.04.13 and
+      warns with upgrade steps if not.
+    - Ship /opt/sark/etc/php/99-sark-php2shell.ini (session.upload_progress Off)
+      and link it into php apache2/cli conf.d on install (defense-in-depth only).
+    - Add go-live notes for Ubuntu 24.04 patch verify and restore via sarkbackup.
+    - AMI: stop waiting for ListItems after Response: Error (avoids 3s×N hangs
+      on the Extensions panel when endpoints are missing).
+    - Extensions: release SQLite before AMI status pass; quiet per-row AMI logging;
+      PRAGMA busy_timeout=5000; cache LOGLEVEL in logIt.
+    - Backup restore: after restoring /etc/asterisk, reapply SAIL platform files
+      (PJSIP templates, sark_pjsip/modules/http) via srkEnsureAsteriskPlatform.sh
+      so older backups cannot leave stock pjsip.conf / missing .tmpl files.
+Checksums-Sha1:
+ 99ed9c5d3c2ce9fba4be93d0792bca5f5e0c7ebf 6180432 sail_6.5.0-9_all.deb
+ 3079a399617d8a86908932631332f699b5918963 3932 sail_6.5.0-9_arm64.buildinfo
+Checksums-Sha256:
+ d5b23cc1aa6cb9156187af6b66e7373978365034d915c112ae850945df92913f 6180432 sail_6.5.0-9_all.deb
+ 83ac8b1dd2e029069d5de3903703893dd5b2838a37cd42960f9393458e23b43e 3932 sail_6.5.0-9_arm64.buildinfo
+Files:
+ d3dd93262cc79c2fc5d2f5f2d46982c3 6180432 network extra sail_6.5.0-9_all.deb
+ 1439c0884ae47cdb31023bd5938623aa 3932 network extra sail_6.5.0-9_arm64.buildinfo
