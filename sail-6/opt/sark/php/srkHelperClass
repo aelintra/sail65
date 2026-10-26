@@ -1138,11 +1138,15 @@ public function send404() {
 }  
                                               	
 public function logIt($someText, $userloglevel=0) {
-	$dbh = DB::getInstance();
-	$res = $dbh->query("SELECT LOGLEVEL FROM globals where pkey = 'global'")->fetch(PDO::FETCH_ASSOC);
-	$dbloglevel = $res['LOGLEVEL'];
+	static $dbloglevel = null;
+	if ($dbloglevel === null) {
+		$dbh = DB::getInstance();
+		$res = $dbh->query("SELECT LOGLEVEL FROM globals where pkey = 'global'")->fetch(PDO::FETCH_ASSOC);
+		$dbloglevel = isset($res['LOGLEVEL']) ? $res['LOGLEVEL'] : 0;
+	}
 	if ($userloglevel <= $dbloglevel) {
-		syslog(LOG_WARNING, $_SERVER['PHP_SELF'] . ' ' . $someText . "\n");	
+		$self = isset($_SERVER['PHP_SELF']) ? $_SERVER['PHP_SELF'] : 'cli';
+		syslog(LOG_WARNING, $self . ' ' . $someText . "\n");
 	}
 }
 

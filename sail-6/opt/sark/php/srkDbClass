@@ -38,12 +38,23 @@ class DB {
             
         if(!self::$objInstance){ 
             self::$objInstance = new PDO("sqlite:/opt/sark/db/sark.db"); 
-            self::$objInstance->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION); 
+            self::$objInstance->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+            // Avoid indefinite hangs when another worker briefly holds the DB
+            // (e.g. long extensions-panel AMI work overlapping a writer).
+            self::$objInstance->exec('PRAGMA busy_timeout = 5000');
         } 
         
         return self::$objInstance; 
     
-    } # end method 
+    } # end method
+
+    /**
+     * Drop the singleton so the next getInstance() opens a fresh handle.
+     * Use after long non-DB work if the process will keep running.
+     */
+    public static function closeInstance() {
+        self::$objInstance = null;
+    } 
     
     /* 
      * Passes on any static calls to this class onto the singleton PDO instance 

@@ -66,9 +66,7 @@ public function get_pjsip_array($endpoints) {
 	$sip_work = array();
 
 	foreach ($endpoints as $extrow) {
-		$this->helper->logit(json_encode($extrow));
 		if (empty($extrow['pkey'])) {
-//			$this->helper->logit(json_encode($extrow));
 			continue;
 		}
 		if ($extrow['active'] == 'NO') {
@@ -77,13 +75,19 @@ public function get_pjsip_array($endpoints) {
 		if ($extrow['technology'] != 'SIP') {
 			continue;
 		}
-				
+
 		$amisiprets = $this->amiHdle->getPjsipPeer($extrow['pkey']);
+		if ($amisiprets === false || $amisiprets === '' ||
+			strpos($amisiprets, 'Response: Error') !== false) {
+			continue;
+		}
 		$sip_work = $this->build_pjsip_array($amisiprets,$extrow['pkey']);
-		$sip_peers[$extrow['pkey']]  = $sip_work[$extrow['pkey']];
+		if (!empty($sip_work[$extrow['pkey']])) {
+			$sip_peers[$extrow['pkey']]  = $sip_work[$extrow['pkey']];
+		}
 	}
 	$this->amiHdle->logout();
-	$this->helper->logit(json_encode($sip_peers));
+	$this->helper->logit(__FUNCTION__ . " peers=" . count($sip_peers), 5);
 	return $sip_peers;
 }
 

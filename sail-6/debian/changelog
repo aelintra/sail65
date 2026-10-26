@@ -1,3 +1,21 @@
+sail (6.5.0-9) UNRELEASED; urgency=high
+
+   - PHP2Shell (CVE-2026-109618 / CVE-2026-109619): on Ubuntu 24.04, postinst
+     verifies libapache2-mod-php8.3 is at least 8.3.6-0ubuntu0.24.04.13 and
+     warns with upgrade steps if not.
+   - Ship /opt/sark/etc/php/99-sark-php2shell.ini (session.upload_progress Off)
+     and link it into php apache2/cli conf.d on install (defense-in-depth only).
+   - Add go-live notes for Ubuntu 24.04 patch verify and restore via sarkbackup.
+   - AMI: stop waiting for ListItems after Response: Error (avoids 3s×N hangs
+     on the Extensions panel when endpoints are missing).
+   - Extensions: release SQLite before AMI status pass; quiet per-row AMI logging;
+     PRAGMA busy_timeout=5000; cache LOGLEVEL in logIt.
+   - Backup restore: after restoring /etc/asterisk, reapply SAIL platform files
+     (PJSIP templates, sark_pjsip/modules/http) via srkEnsureAsteriskPlatform.sh
+     so older backups cannot leave stock pjsip.conf / missing .tmpl files.
+
+ -- KoKoSoft <admin@aelintra.com>  Mon, 26 Oct 2026 20:30:00 +0000
+
 sail (6.5.0-8) UNRELEASED; urgency=low
 
    - Fix holiday timer epoch conversion to use the system timezone from /etc/timezone,

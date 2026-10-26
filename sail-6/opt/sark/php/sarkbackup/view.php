@@ -452,7 +452,12 @@ private function doRestore() {
 			$this->helper->request_syscmd ("rm -rf /etc/asterisk/*");
 			$this->helper->request_syscmd ("cp -a  $tempDname/etc/asterisk/* /etc/asterisk");
 			$this->helper->request_syscmd ("chown asterisk:asterisk /etc/asterisk/*");
+			// Older backups (pre-PJSIP / stock Asterisk samples) wipe SAIL
+			// platform files (*.tmpl, sark_pjsip.conf, modules/http links).
+			// Reinstall those from /opt/sark/cache/asterisk-platform.
+			$this->helper->request_syscmd ("sh /opt/sark/scripts/srkEnsureAsteriskPlatform.sh");
 			$this->log .= "<p>Asterisk files RESTORED</p>";
+			$this->log .= "<p>SAIL Asterisk platform files reapplied</p>";
 		}
 		else {
 			$this->log .= "<p>No Asterisk files in backup set; request ignored </p>";

@@ -204,13 +204,19 @@ private function showMain() {
 	$sipdriver = $res['SIPDRIVER'];
 	$extensions = $this->helper->getTable("ipphone","select ip.*, de.noproxy from ipphone ip inner join device de on ip.device=de.pkey",true,false,'ip.pkey');
 
+	// Release the SQLite handle before the (potentially long) AMI status pass
+	// so writers are not blocked while we query Asterisk.
+	$this->dbh = null;
+	DB::closeInstance();
+
 	if ( $this->astrunning ) {	
 		$this->amiHelper = new amiHelper();
 		$this->sip_peers = $this->amiHelper->get_pjsip_array($extensions);
 	}
 	else {
 		$this->myPanel->msg .= "  (No Asterisk running)";
-	}	
+	}
+	$this->dbh = DB::getInstance();
 
 /* 
  * start page output

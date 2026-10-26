@@ -154,7 +154,7 @@ class ami
     
         $response = false;
         $break = false;
-        while(!$break && $line = fgets($this->_socket)) {
+        while(!$break && ($line = fgets($this->_socket)) !== false) {
             if (!empty($terminationString) && strstr($line, $terminationString) !== FALSE ) {
                 //found termination string
                 $break = true;
@@ -164,9 +164,20 @@ class ami
                 //what about extra chars after?
             } else {
                 $response .= $line;
-                
             }
 
+            // AMI error packets never include ListItems/etc. Without this,
+            // callers that wait for a list terminator burn the full stream
+            // timeout on every missing endpoint (extensions panel × N).
+            if (strpos($line, 'Response: Error') !== false) {
+                while (($more = fgets($this->_socket)) !== false) {
+                    $response .= $more;
+                    if (rtrim($more, "\r\n") === '') {
+                        break;
+                    }
+                }
+                $break = true;
+            }
         }
         //$response = stream_get_contents($this->_socket);
 
