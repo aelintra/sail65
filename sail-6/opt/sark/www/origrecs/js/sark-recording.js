@@ -123,7 +123,7 @@ $(document).ready(function() {
             player.jPlayer('stop');
 
             player.jPlayer('setMedia', {
-                wav: $(this).siblings('a:last').attr('href')
+                wav: $(this).attr('data-src') || $(this).siblings('a:last').attr('href')
             });
         }
 

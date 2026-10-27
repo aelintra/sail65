@@ -36,32 +36,54 @@ class RecordingList
 
     public function addCall($file_list, $file, $folder)
     {
-        $file_link = $folder . $file;
+        // Play via /media Alias (inline audio). Download via session-backed
+        // downloadg.php so browsers get Content-Disposition: attachment
+        // (Safari ignores the HTML download attr on audio/x-wav and can prompt oddly).
+        $day = basename(rtrim($folder, '/'));
+        $abs = '/opt/sark/media/recordings/' . $day . '/' . $file;
+        $entry = array(
+            'file_list' => $file_list,
+            'file_link' => '/media/recordings/' . $day . '/' . $file,
+            'file_dl'   => '/php/downloadg.php?dfile=' . rawurlencode($abs),
+            'file_name' => $file,
+        );
 
         if (count($file_list) == 5+$this->offset)
         {
-            $this->calls[self::QUEUED][] = array('file_list' => $file_list, 'file_link' => $file_link);
+            $this->calls[self::QUEUED][] = $entry;
         }
         else if ((strlen($file_list[2+$this->offset]) <= 5) && (strlen($file_list[1+$this->offset]) > 5))
         {
-            $this->calls[self::OUTBOUND][] = array('file_list' => $file_list, 'file_link' => $file_link);
+            $this->calls[self::OUTBOUND][] = $entry;
         }
         else if ((strlen($file_list[1+$this->offset]) <= 5) && (strlen($file_list[2+$this->offset]) > 5))
         {
-            $this->calls[self::INBOUND][] = array('file_list' => $file_list, 'file_link' => $file_link);
+            $this->calls[self::INBOUND][] = $entry;
         }
         else if ((strlen($file_list[1+$this->offset]) <= 5) && (strlen($file_list[2+$this->offset]) <= 5))
         {
-            $this->calls[self::LOCAL][] = array('file_list' => $file_list, 'file_link' => $file_link);
+            $this->calls[self::LOCAL][] = $entry;
         }
         else if ((strlen($file_list[1+$this->offset]) > 5) && (strlen($file_list[2+$this->offset]) > 5))
         {
-            $this->calls[self::BRIDGED][] = array('file_list' => $file_list, 'file_link' => $file_link);
+            $this->calls[self::BRIDGED][] = $entry;
         }        
         else
         {
-            $this->calls[self::UNKNOWN][] = array('file_list' => $file_list, 'file_link' => $file_link);
+            $this->calls[self::UNKNOWN][] = $entry;
         }
+    }
+
+    /** Play + stop + download controls for a result row. */
+    private function controlsHtml($call)
+    {
+        $play = htmlspecialchars($call['file_link'], ENT_QUOTES);
+        $dl = htmlspecialchars($call['file_dl'], ENT_QUOTES);
+        $name = htmlspecialchars($call['file_name'], ENT_QUOTES);
+        return '<a href="#" class="player ui-state-default ui-icon ui-icon-play" data-src="' . $play . '"></a>'
+            . '<a href="#" class="ui-state-default ui-icon ui-icon-stop"></a>'
+            . '<a href="' . $dl . '" download="' . $name . '">'
+            . '<span class="download ui-state-default ui-icon ui-icon-arrowthickstop-1-s" title="Download"></span></a>';
     }
 
 
@@ -100,7 +122,7 @@ class RecordingList
             <td>{$call['file_list'][1+$this->offset]}</td>
             <td>{$datetime}</td>
             <td>{$call['file_list'][3+$this->offset]}</td>
-            <td><a href=\"#\" class=\"player ui-state-default ui-icon ui-icon-play\"></a><a href=\"#\" class=\"ui-state-default ui-icon ui-icon-stop\"></a><a href=\"{$call['file_link']}\" download><span class=\"download ui-state-default ui-icon ui-icon-arrowthickstop-1-s\" title=\"Download\"></span></a></td>
+            <td>" . $this->controlsHtml($call) . "</td>
             </tr>\n";
         }
 
@@ -131,7 +153,7 @@ class RecordingList
             <td>{$call['file_list'][1+$this->offset]}</td>
             <td>{$datetime}</td>
             <td>{$call['file_list'][3+$this->offset]}</td>
-            <td><a href=\"#\" class=\"player ui-state-default ui-icon ui-icon-play\"></a><a href=\"#\" class=\"ui-state-default ui-icon ui-icon-stop\"></a><a href=\"{$call['file_link']}\" download><span class=\"download ui-state-default ui-icon ui-icon-arrowthickstop-1-s\"></span></a></td>
+            <td>" . $this->controlsHtml($call) . "</td>
             </tr>\n";
         }
 
@@ -162,7 +184,7 @@ class RecordingList
             <td>{$call['file_list'][1+$this->offset]}</td>
             <td>{$datetime}</td>
             <td>{$call['file_list'][3+$this->offset]}</td>
-            <td><a href=\"#\" class=\"player ui-state-default ui-icon ui-icon-play\"></a><a href=\"#\" class=\"ui-state-default ui-icon ui-icon-stop\"></a><a href=\"{$call['file_link']}\" download><span class=\"download ui-state-default ui-icon ui-icon-arrowthickstop-1-s\"></span></a></td>
+            <td>" . $this->controlsHtml($call) . "</td>
             </tr>\n";
         }
 
@@ -193,7 +215,7 @@ class RecordingList
             <td>{$call['file_list'][1+$this->offset]}</td>
             <td>{$datetime}</td>
             <td>{$call['file_list'][3+$this->offset]}</td>
-            <td><a href=\"#\" class=\"player ui-state-default ui-icon ui-icon-play\"></a><a href=\"#\" class=\"ui-state-default ui-icon ui-icon-stop\"></a><a href=\"{$call['file_link']}\" download><span class=\"download ui-state-default ui-icon ui-icon-arrowthickstop-1-s\"></span></a></td>
+            <td>" . $this->controlsHtml($call) . "</td>
             </tr>\n";
         }
 
@@ -225,7 +247,7 @@ class RecordingList
             <td>{$call['file_list'][1+$this->offset]}</td>
             <td>{$datetime}</td>
             <td>{$call['file_list'][4+$this->offset]}</td>
-            <td><a href=\"#\" class=\"player ui-state-default ui-icon ui-icon-play\"></a><a href=\"#\" class=\"ui-state-default ui-icon ui-icon-stop\"></a><a href=\"{$call['file_link']}\" download><span class=\"download ui-state-default ui-icon ui-icon-arrowthickstop-1-s\"></span></a></td>
+            <td>" . $this->controlsHtml($call) . "</td>
             </tr>\n";
         }
 
@@ -258,7 +280,7 @@ class RecordingList
             <td>{$call['file_list'][1+$this->offset]}</td>
             <td>{$datetime}</td>
             <td>{$call['file_list'][3+$this->offset]}</td>
-            <td><a href=\"#\" class=\"player ui-state-default ui-icon ui-icon-play\"></a><a href=\"#\" class=\"ui-state-default ui-icon ui-icon-stop\"></a><a href=\"{$call['file_link']}\" download><span class=\"download ui-state-default ui-icon ui-icon-arrowthickstop-1-s\"></span></a></td>
+            <td>" . $this->controlsHtml($call) . "</td>
             </tr>\n";
         }
 
