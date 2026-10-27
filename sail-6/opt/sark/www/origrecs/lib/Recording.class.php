@@ -36,15 +36,15 @@ class RecordingList
 
     public function addCall($file_list, $file, $folder)
     {
-        // Play via /media Alias (inline audio). Download via session-backed
-        // downloadg.php so browsers get Content-Disposition: attachment
-        // (Safari ignores the HTML download attr on audio/x-wav and can prompt oddly).
+        // Play + download both go through session-backed downloadg.php
+        // (no public /media Alias). inline=1 streams audio for jPlayer.
         $day = basename(rtrim($folder, '/'));
         $abs = '/opt/sark/media/recordings/' . $day . '/' . $file;
+        $q = rawurlencode($abs);
         $entry = array(
             'file_list' => $file_list,
-            'file_link' => '/media/recordings/' . $day . '/' . $file,
-            'file_dl'   => '/php/downloadg.php?dfile=' . rawurlencode($abs),
+            'file_link' => '/php/downloadg.php?dfile=' . $q . '&inline=1',
+            'file_dl'   => '/php/downloadg.php?dfile=' . $q,
             'file_name' => $file,
         );
 
