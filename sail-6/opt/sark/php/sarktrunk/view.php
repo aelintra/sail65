@@ -584,7 +584,7 @@ private function showEdit() {
 			echo '</div>' . PHP_EOL;
 		}
 
-		$fileData = $this->helper->getPjsipTrunkInstance($tuple);
+		$fileData = $this->helper->getPjsipTrunkInstance($tuple['pkey']);
 
 		if ($fileData) {
      		echo '<div id="pjsipuser">';   		

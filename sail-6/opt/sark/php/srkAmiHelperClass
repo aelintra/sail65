@@ -28,6 +28,68 @@ protected $helper;
 
 
 /**
+ * chan_sip / IAX peer table for splash, PDF, and chan_sip extension edit.
+ * On PJSIP installs, maps PJSIPShowContacts into the old IPaddress/Status shape.
+ * @param bool $iax true → IAX peers
+ * @return array|bool
+ */
+public function get_peer_array($iax=false) {
+
+	if ($iax) {
+		return $this->get_iax_array();
+	}
+
+	$this->helper = new helper;
+	if ($this->helper->checkPjsipEnabled()) {
+		if ( ! $this->amiHelperLogin()) {
+			return false;
+		}
+		$amisiprets = $this->amiHdle->getPjsipContacts();
+		$this->amiHdle->logout();
+		if ($amisiprets === false || $amisiprets === '' ||
+			strpos($amisiprets, 'Response: Error') !== false) {
+			return array();
+		}
+		$contacts = $this->build_pjsip_contacts_array($amisiprets);
+		$peers = array();
+		foreach ($contacts as $ep => $c) {
+			$uri = '';
+			if (!empty($c['URI'])) {
+				$uri = $c['URI'];
+			} else if (!empty($c['Uri'])) {
+				$uri = $c['Uri'];
+			}
+			$ip = '-none-';
+			if ($uri !== '' && preg_match('/^sip:.*@(.*):/', $uri, $m)) {
+				$ip = $m[1];
+			}
+			$status = 'UNKNOWN';
+			if (!empty($c['RoundtripUsec']) && is_numeric($c['RoundtripUsec'])) {
+				$status = 'OK (' . round($c['RoundtripUsec'] / 1000) . ' ms)';
+			} else if (!empty($c['Status'])) {
+				$status = $c['Status'];
+			}
+			$peers[$ep] = array(
+				'IPaddress' => $ip,
+				'Status' => $status,
+				'URI' => $uri,
+				'UserAgent' => isset($c['UserAgent']) ? $c['UserAgent'] : '',
+				'RoundtripUsec' => isset($c['RoundtripUsec']) ? $c['RoundtripUsec'] : '',
+			);
+		}
+		return $peers;
+	}
+
+	if ( ! $this->amiHelperLogin()) {
+		return false;
+	}
+	$amisiprets = $this->amiHdle->getSipPeers();
+	$sip_peers = $this->build_peer_array($amisiprets);
+	$this->amiHdle->logout();
+	return $sip_peers;
+}
+
+/**
  * @return Array of IAX peers  or False if none
  */
 public function get_iax_array() {
