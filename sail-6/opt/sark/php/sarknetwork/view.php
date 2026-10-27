@@ -439,11 +439,11 @@ private function saveEdit() {
 		$fqdnprov 		= strip_tags($_POST['fqdnprov']);
 		$bindport 		= strip_tags($_POST['bindport']);
 //		$sshport		= strip_tags($_POST['sshport']);
-		$smtpuser		= strip_tags($_POST['smtpuser']);
-		$smtppwd		= strip_tags($_POST['smtppwd']);
-		$smtphost		= strip_tags($_POST['smtphost']);
-		$smtpusetls		= strip_tags($_POST['smtpusetls']);
-		$smtpusestrttls = strip_tags($_POST['smtpusestrttls']);
+		$smtpuser		= isset($_POST['smtpuser']) ? strip_tags($_POST['smtpuser']) : '';
+		$smtppwd		= isset($_POST['smtppwd']) ? strip_tags($_POST['smtppwd']) : '';
+		$smtphost		= isset($_POST['smtphost']) ? strip_tags($_POST['smtphost']) : '';
+		$smtpusetls		= isset($_POST['smtpusetls']) ? strip_tags($_POST['smtpusetls']) : '';
+		$smtpusestrttls = isset($_POST['smtpusestrttls']) ? strip_tags($_POST['smtpusestrttls']) : '';
 //		$astfile		= strip_tags($_POST['astfile']);
 		$dns1			= strip_tags($_POST['dns1']);
 		$dns2			= strip_tags($_POST['dns2']);
