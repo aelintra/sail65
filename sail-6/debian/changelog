@@ -1,3 +1,17 @@
+sail (6.5.0-11) UNRELEASED; urgency=medium
+
+   - Extensions/Trunks list: one AMI PJSIPShowContacts instead of N×
+     PJSIPShowEndpoint (large installs).
+   - Restore get_peer_array for splash/PDF; map PJSIP contacts into the
+     legacy IPaddress/Status shape.
+   - Stop exposing /opt/sark/media via Apache Alias (directory listing).
+   - Heal commitflag: www-data touch/unlink with sudo rm fallback so a
+     stale root-owned flag no longer leaves Commit red with no edits.
+   - Trunk edit: pass pkey (not whole tuple) to getPjsipTrunkInstance.
+   - Network: guard missing SMTP POST keys on save.
+
+ -- KoKoSoft <admin@aelintra.com>  Tue, 27 Oct 2026 01:17:00 +0000
+
 sail (6.5.0-10) UNRELEASED; urgency=medium
 
    - Remove unused jquery-ui custom-build package.json (grunt 0.4.5) that
