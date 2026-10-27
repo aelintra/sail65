@@ -1,10 +1,16 @@
 # TODO — Harden Apache audio aliases / sarkphone play
 
-Opened: 2026-10-26 (customer go-live prep). Defer until after AMI bulk + media Alias removal ship.
+Opened: 2026-10-26 (customer go-live prep).
 
-## Context
+## Done (6.5.0-12)
 
-**Done (recordings):** `/media` Alias removed. Origrecs play/download use session-backed `/php/downloadg.php` (`inline=1` for play, path allowlist under `/opt/sark/media/recordings/`).
+- **`/media` Alias removed** from `sark-ssl.conf`.
+- Origrecs play/download via session-backed `/php/downloadg.php`:
+  - Allowlisted roots; `inline=1` / recording-audio → stream + Range.
+  - `dl=1` → attachment.
+  - Lab verified play + download on `.130`.
+
+## Still open
 
 Same pattern remains for voicemail / greetings / MOH:
 
