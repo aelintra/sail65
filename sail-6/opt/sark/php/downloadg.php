@@ -6,9 +6,14 @@
 require_once $_SERVER["DOCUMENT_ROOT"] . "../php/srksessions/common.php";
 require_once $_SERVER["DOCUMENT_ROOT"] . "../php/srkHelperClass";
 
+$wantDl = !empty($_GET['dl']);
+$inlineReq = !empty($_GET['inline']) || !empty($_GET['play']);
+
 if (empty($_SESSION['user'])) {
-	// Avoid HTML login redirect for jPlayer / <audio> (inline=1)
-	if (!empty($_GET['inline'])) {
+	// Media players can't follow an HTML login redirect
+	$accept = isset($_SERVER['HTTP_ACCEPT']) ? $_SERVER['HTTP_ACCEPT'] : '';
+	if ($inlineReq || isset($_SERVER['HTTP_RANGE']) ||
+		stripos($accept, 'audio/') !== false) {
 		http_response_code(401);
 		exit;
 	}
@@ -16,7 +21,6 @@ if (empty($_SESSION['user'])) {
 	exit;
 }
 
-$inline = !empty($_GET['inline']);
 $raw = isset($_GET['dfile']) ? strip_tags($_GET['dfile']) : '';
 if ($raw === '') {
 	http_response_code(400);
@@ -54,7 +58,9 @@ if (!$ok) {
 }
 
 $helper = new helper;
-$fileperms = trim(`stat -c %a ` . escapeshellarg($fullPath));
+$statOut = array();
+exec('stat -c %a ' . escapeshellarg($fullPath), $statOut);
+$fileperms = isset($statOut[0]) ? trim($statOut[0]) : '';
 if (!is_readable($fullPath)) {
 	$helper->request_syscmd("/bin/chmod +r " . escapeshellarg($fullPath));
 }
@@ -76,6 +82,12 @@ $mimes = array(
 	'log' => 'text/plain',
 );
 $ctype = isset($mimes[$ext]) ? $mimes[$ext] : 'application/octet-stream';
+$isRecording = (strpos($fullPath, '/opt/sark/media/recordings/') === 0)
+	&& (strpos($ctype, 'audio/') === 0);
+
+// Explicit dl=1 → attachment. Call-recording audio streams inline so jPlayer
+// works even when the client omits inline=1 (cached JS / href fallback).
+$inline = !$wantDl && ($inlineReq || $isRecording);
 
 if ($inline) {
 	$disposition = 'inline';

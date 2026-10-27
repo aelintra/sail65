@@ -122,9 +122,14 @@ $(document).ready(function() {
         if ($(this).hasClass('ui-state-active') == false) {
             player.jPlayer('stop');
 
-            player.jPlayer('setMedia', {
-                wav: $(this).attr('data-src') || $(this).siblings('a:last').attr('href')
-            });
+            // Prefer data-src (inline stream). Fall back to download href and
+            // force inline if the cached page still lacks data-src.
+            var src = $(this).attr('data-src') || $(this).data('src') ||
+                $(this).siblings('a:last').attr('href') || '';
+            if (src && src.indexOf('inline=') === -1 && src.indexOf('dl=') === -1) {
+                src += (src.indexOf('?') >= 0 ? '&' : '?') + 'inline=1';
+            }
+            player.jPlayer('setMedia', { wav: src });
         }
 
         $('.player').removeClass('ui-state-active ui-icon-pause').addClass('ui-icon-play').next().addClass('ui-state-enabled');

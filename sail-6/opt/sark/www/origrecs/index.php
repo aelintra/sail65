@@ -47,7 +47,7 @@ if ($_POST) {
 <!--        <script type="text/javascript" src="js/jquery.pngFix.js"></script>  -->
 <!--        <script type="text/javascript" src="js/jquery.tipTip.minified.js"></script> -->
         <script type="text/javascript" src="js/jPlayer/jquery.jplayer.min.js"></script>
-        <script type="text/javascript" src="js/sark-recording.js"></script>
+        <script type="text/javascript" src="js/sark-recording.js?v=20261027"></script>
     </head>
 
     <body>

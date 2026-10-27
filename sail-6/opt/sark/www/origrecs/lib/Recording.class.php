@@ -37,14 +37,14 @@ class RecordingList
     public function addCall($file_list, $file, $folder)
     {
         // Play + download both go through session-backed downloadg.php
-        // (no public /media Alias). inline=1 streams audio for jPlayer.
+        // (no public /media Alias). Audio streams inline unless dl=1.
         $day = basename(rtrim($folder, '/'));
         $abs = '/opt/sark/media/recordings/' . $day . '/' . $file;
         $q = rawurlencode($abs);
         $entry = array(
             'file_list' => $file_list,
-            'file_link' => '/php/downloadg.php?dfile=' . $q . '&inline=1',
-            'file_dl'   => '/php/downloadg.php?dfile=' . $q,
+            'file_link' => '/php/downloadg.php?inline=1&dfile=' . $q,
+            'file_dl'   => '/php/downloadg.php?dl=1&dfile=' . $q,
             'file_name' => $file,
         );
 

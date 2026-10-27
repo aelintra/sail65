@@ -1,3 +1,14 @@
+sail (6.5.0-12) UNRELEASED; urgency=medium
+
+   - Call recordings: play/download via session-backed downloadg.php;
+     drop Apache /media Alias so WAVs are not publicly reachable.
+   - downloadg: allowlisted paths, Range/inline streaming for jPlayer,
+     dl=1 for attachment; recording audio defaults to inline stream.
+   - origrecs: data-src play URLs, cache-busted JS; Safari-friendly
+     Content-Disposition handling.
+
+ -- KoKoSoft <admin@aelintra.com>  Tue, 27 Oct 2026 01:54:00 +0000
+
 sail (6.5.0-11) UNRELEASED; urgency=medium
 
    - Extensions/Trunks list: one AMI PJSIPShowContacts instead of N×
