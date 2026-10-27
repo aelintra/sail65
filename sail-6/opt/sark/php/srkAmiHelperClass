@@ -44,11 +44,10 @@ public function get_iax_array() {
 
 }
     /**
-     * Get array for all PJSIP endpoints
-     * PJSIP does not return what we want when we ask for all endpoints.   
-     * Instead, we must recirsively call the AMI for each indivdual endpoint
-     * and amalgamate the results into our final peer array
-     * @return string|bool
+     * Get array for PJSIP endpoints used by list panels (extensions/trunks).
+     * Uses one PJSIPShowContacts call — that returns URI / UserAgent /
+     * RoundtripUsec. PJSIPShowEndpoints does not. Avoids N× PJSIPShowEndpoint.
+     * @return array|bool
      */
 public function get_pjsip_array($endpoints) {
 
@@ -58,35 +57,37 @@ public function get_pjsip_array($endpoints) {
 		return false;
 	}
 
-	if ( ! $this->amiHelperLogin()) {
-		return false;
-	}
-	
-	$sip_peers = array();
-	$sip_work = array();
-
+	$wanted = array();
 	foreach ($endpoints as $extrow) {
 		if (empty($extrow['pkey'])) {
 			continue;
 		}
-		if ($extrow['active'] == 'NO') {
+		if (isset($extrow['active']) && $extrow['active'] == 'NO') {
 			continue;
 		}
-		if ($extrow['technology'] != 'SIP') {
+		if (isset($extrow['technology']) && $extrow['technology'] != 'SIP') {
 			continue;
 		}
-
-		$amisiprets = $this->amiHdle->getPjsipPeer($extrow['pkey']);
-		if ($amisiprets === false || $amisiprets === '' ||
-			strpos($amisiprets, 'Response: Error') !== false) {
-			continue;
-		}
-		$sip_work = $this->build_pjsip_array($amisiprets,$extrow['pkey']);
-		if (!empty($sip_work[$extrow['pkey']])) {
-			$sip_peers[$extrow['pkey']]  = $sip_work[$extrow['pkey']];
-		}
+		$wanted[$extrow['pkey']] = true;
 	}
+	if (empty($wanted)) {
+		return array();
+	}
+
+	if ( ! $this->amiHelperLogin()) {
+		return false;
+	}
+
+	$amisiprets = $this->amiHdle->getPjsipContacts();
 	$this->amiHdle->logout();
+
+	if ($amisiprets === false || $amisiprets === '' ||
+		strpos($amisiprets, 'Response: Error') !== false) {
+		$this->helper->logit(__FUNCTION__ . " contacts empty/error", 5);
+		return array();
+	}
+
+	$sip_peers = $this->build_pjsip_contacts_array($amisiprets, $wanted);
 	$this->helper->logit(__FUNCTION__ . " peers=" . count($sip_peers), 5);
 	return $sip_peers;
 }
@@ -116,10 +117,15 @@ public function get_pjsip_endpoint($endpoint) {
      */
  
 public function getIpAddressFromPeer($key,$peers) {
-		
 
-		if (!empty($peers [$key]['URI'])) {
-			preg_match("/^sip:.*@(.*):/",$peers [$key]['URI'],$matches);
+		$uri = '';
+		if (!empty($peers[$key]['URI'])) {
+			$uri = $peers[$key]['URI'];
+		} else if (!empty($peers[$key]['Uri'])) {
+			$uri = $peers[$key]['Uri'];
+		}
+		if ($uri !== '') {
+			preg_match("/^sip:.*@(.*):/",$uri,$matches);
 			if (!empty($matches[1])) {
 				return $matches[1];
 			}
@@ -424,6 +430,50 @@ private function build_pjsip_array($amirets,$peer) {
 		$peer_array [$peer][$couplet[0]] = $couplet[1];
 	}
 	return $peer_array;	
+}
+
+/**
+ * Parse PJSIPShowContacts into the same peer shape list panels expect.
+ * Keys by ContactList Endpoint; normalizes Uri → URI for getIpAddressFromPeer.
+ * $wanted is an associative set of pkeys to keep (empty = keep all).
+ */
+private function build_pjsip_contacts_array($amirets, $wanted = array()) {
+	$peer_array = array();
+	$cur = array();
+	$lines = explode("\r\n", $amirets);
+	$lines[] = 'Event: ContactListComplete';
+
+	foreach ($lines as $line) {
+		if (strpos($line, 'Event: ') === 0) {
+			if (!empty($cur['Endpoint'])) {
+				$ep = $cur['Endpoint'];
+				if (empty($wanted) || isset($wanted[$ep])) {
+					if (!empty($cur['Uri']) && empty($cur['URI'])) {
+						$cur['URI'] = $cur['Uri'];
+					}
+					// Prefer a Reachable contact if several exist for one endpoint
+					if (empty($peer_array[$ep]) ||
+						(isset($cur['Status']) && $cur['Status'] === 'Reachable')) {
+						$peer_array[$ep] = $cur;
+					}
+				}
+			}
+			$cur = array();
+			continue;
+		}
+		if (strpos($line, ': ') === false) {
+			continue;
+		}
+		$couplet = explode(': ', $line, 2);
+		if ($couplet[0] === 'Event' || $couplet[0] === 'ListItems'
+			|| $couplet[0] === 'EventList' || $couplet[0] === 'Response'
+			|| $couplet[0] === 'Message' || $couplet[0] === 'ObjectType'
+			|| $couplet[0] === 'ObjectName') {
+			continue;
+		}
+		$cur[$couplet[0]] = $couplet[1];
+	}
+	return $peer_array;
 }
 
 

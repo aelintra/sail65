@@ -1,12 +1,12 @@
 # Session handoff — 2026-10-25 / 2026-10-26
 
-Customer go-live prep for Adler & Allen on Ubuntu 24.04. Packages released: **sail 6.5.0-9** then **6.5.0-10**.
+Customer go-live prep on Ubuntu 24.04. Packages released: **sail 6.5.0-9** then **6.5.0-10**.
 
 ## Environment
 
 | Role | Host | Notes |
 |------|------|--------|
-| Lab / customer rebuild | `192.168.1.130` (`adler`) | Rebuilt late 26 Oct; reported OK with 6.5.0-9+ fixes. On **sail 6.5.0-10** as of late 26 Oct. |
+| Lab / customer rebuild | `192.168.1.130` | Rebuilt late 26 Oct; reported OK with 6.5.0-9+ fixes. On **sail 6.5.0-10** as of late 26 Oct. |
 | Other test | `192.168.1.12` (`iitac2404`) | Cleaner reference install; had all `.tmpl` files |
 | **Deb builder** | `192.168.1.78` (`deb11-1`) | Canonical package build host. Repos in `~/Git/sail65`; `debuild --no-lintian -us -uc -b` from `sail-6/`; output `~/Git/sail65/sail_*_all.deb` |
 | Mac workspace | `/Users/jeffstokoe/GiT/sail65` | Tracks `origin/main` (`aelintra/sail65`) |
@@ -22,7 +22,7 @@ ssh tech@192.168.1.130 'sudo -n true && echo OK'
 
 Use `sudo -n …` from the agent (no password prompt). Do **not** assume the same on `.12`, `.78`, or production.
 
-Customer backup used for testing: `sarkbak.1792900801.zip` (Adler). Uncompressed ~486 MB; **~97% voicemail** under `var/spool`.
+Customer backup used for testing: `sarkbak.1792900801.zip`. Uncompressed ~486 MB; **~97% voicemail** under `var/spool`.
 
 ## Releases this session
 

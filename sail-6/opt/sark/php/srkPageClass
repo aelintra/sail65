@@ -752,8 +752,8 @@ Class page {
 			
 	public function commitButton () {
 	/*** handle special case of commit buttons ***/
-
-        if (file_exists('/opt/sark/cache/commitflag')) {   
+		$helper = new helper;
+        if ($helper->commitIsPending()) {   
 				$this->override="commit";
 				$this->Button("commitClick");
 		}
@@ -906,8 +906,8 @@ Class page {
  */
   	public function actionBar ($buttonArray,$form,$showSave=true,$showCommit=true,$showUpdate=false,$pKey=false) {
 	/*** display an action bar ***/
-	
-		if (file_exists('/opt/sark/cache/commitflag')) {  
+		$helper = new helper;
+		if ($helper->commitIsPending()) {  
 				$commitColour = "w3-text-red";
 		}
 		else {

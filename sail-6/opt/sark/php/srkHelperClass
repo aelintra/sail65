@@ -68,22 +68,62 @@ public function sysCommit() {
 /*
  * turn off commit
  */	
-	
-	if (file_exists("/opt/sark/cache/commitflag")) {
-		`/bin/rm -rf /opt/sark/cache/commitflag`;
-	} 
-
+	$this->commitOff();
 
 	return;
 }
 
-public function commitOn () {
-//turn the commit lamp on
+/**
+ * Path of the Commit-lamp flag file (red button when present).
+ */
+public function commitFlagFile() {
+	return '/opt/sark/cache/commitflag';
+}
 
-	`/bin/touch /opt/sark/cache/commitflag`;
-//	$dbh = DB::getInstance();
-//	$res=$dbh->exec("UPDATE globals SET MYCOMMIT='YES' WHERE pkey='global'");
-	return;
+/**
+ * Whether the Commit button should show pending. Heals a stale
+ * root-owned flag left when www-data could not unlink after commit
+ * (common cause of red Commit on login with no pending edits).
+ */
+public function commitIsPending() {
+	$flag = $this->commitFlagFile();
+	if (!file_exists($flag)) {
+		return false;
+	}
+	if (!is_writable($flag)) {
+		$this->commitOff();
+		return file_exists($flag);
+	}
+	return true;
+}
+
+/**
+ * Turn the commit lamp on (www-data must own the flag).
+ */
+public function commitOn () {
+	$flag = $this->commitFlagFile();
+	if (file_exists($flag) && !is_writable($flag)) {
+		$this->commitOff();
+	}
+	if (@touch($flag) === false) {
+		$this->commitOff();
+		@touch($flag);
+	}
+}
+
+/**
+ * Clear the commit lamp. Falls back to sudo rm when the flag is
+ * root-owned (sudoers: www-data NOPASSWD /bin/rm).
+ */
+public function commitOff() {
+	$flag = $this->commitFlagFile();
+	if (!file_exists($flag)) {
+		return;
+	}
+	if (@unlink($flag) !== false) {
+		return;
+	}
+	@exec('sudo /bin/rm -f ' . escapeshellarg($flag) . ' 2>/dev/null');
 }
 	
 public function request_syscmd ($data) {

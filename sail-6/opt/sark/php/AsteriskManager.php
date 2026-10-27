@@ -555,7 +555,21 @@ class ami
         $response = $this->_sendCommand("Action: PJSIPShowEndpoint\r\n"
             . "Endpoint: " . $endpoint . "\r\n\r\n",'ListItems', false);
         return $response;
-    }    
+    }
+
+    /**
+     * Get all PJSIP contacts (URI, UA, RTT) in one AMI round-trip.
+     * Prefer this over N× PJSIPShowEndpoint for list panels.
+     *
+     * @return string|bool
+     */
+    public function getPjsipContacts()
+    {
+        $this->_checkSocket();
+
+        $response = $this->_sendCommand("Action: PJSIPShowContacts\r\n\r\n", 'ListItems', false);
+        return $response;
+    }
 
     /**
      * Return a list of IAX peers and their status
