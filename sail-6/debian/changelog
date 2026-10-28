@@ -1,3 +1,11 @@
+sail (6.5.0-13) UNRELEASED; urgency=medium
+
+   - Voicemail ageing: cron invokes bash (not perl) for agevmail.sh.
+   - agevmail.sh: path-based find for Old/msg*; skip if voicemail tree
+     missing (avoids hourly find errors when no Old folders exist).
+
+ -- KoKoSoft <admin@aelintra.com>  Wed, 28 Oct 2026 20:15:00 +0000
+
 sail (6.5.0-12) UNRELEASED; urgency=medium
 
    - Call recordings: play/download via session-backed downloadg.php;

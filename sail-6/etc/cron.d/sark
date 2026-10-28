@@ -15,7 +15,7 @@
 #01 * * * * root perl /opt/sark/scripts/aelhdlon.pl prune >/dev/null 2>&1
 
 # SARK VMAIL ageing
-01 * * * * root perl /opt/sark/scripts/agevmail.sh >/dev/null 2>&1
+01 * * * * root bash /opt/sark/scripts/agevmail.sh >/dev/null 2>&1
 
 #sark disk space pruner (ppc and arm)
 */10 * * * * root perl /opt/sark/scripts/diskabs.pl >/dev/null 2>&1
