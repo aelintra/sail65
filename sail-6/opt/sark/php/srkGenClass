@@ -399,21 +399,23 @@ private function genPjsipTrunks() {
 			continue;
 		} 	                
 
+		// getPjsipTrunkInstance auto-creates missing instance files
+		// (common after DB restore without /etc/asterisk trunk stubs).
 		$pjsipTrunkBuff = $this->helper->getPjsipTrunkInstance($row['pkey']);
-		if ($pjsipTrunkBuff) {
-			$this->xlatePjsipBuff($pjsipTrunkBuff,$row);
+		if (!$pjsipTrunkBuff) {
+			continue;
 		}
-		
+		$this->xlatePjsipBuff($pjsipTrunkBuff,$row);
 
-			if ($row['privileged'] == "NO") {
-				$pjsipTrunkBuff = preg_replace ( '/\$context/','mainmenu', $pjsipTrunkBuff );	
-			}
-			else {
-				$pjsipTrunkBuff = preg_replace ( '/\$context/','internal', $pjsipTrunkBuff );
-			}
-			$pjsipReadyTrunks .= $pjsipTrunkBuff;
-			$pjsipReadyTrunks .= "\n\n";
-			$pjsipTrunkBuff = NULL;
+		if ($row['privileged'] == "NO") {
+			$pjsipTrunkBuff = preg_replace ( '/\$context/','mainmenu', $pjsipTrunkBuff );	
+		}
+		else {
+			$pjsipTrunkBuff = preg_replace ( '/\$context/','internal', $pjsipTrunkBuff );
+		}
+		$pjsipReadyTrunks .= $pjsipTrunkBuff;
+		$pjsipReadyTrunks .= "\n\n";
+		$pjsipTrunkBuff = NULL;
 	}
 
 /**

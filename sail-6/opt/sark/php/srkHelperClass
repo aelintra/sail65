@@ -514,11 +514,32 @@ public function checkPjsipEnabled() {
 }
 
 /**
+ * Infer pjsipreg (SND/RCV/NONE) when missing — e.g. after DB restore.
+ * Backups restore lineio but not /etc/asterisk/sark_pjsip_*_trunk.conf.
+ */
+public function inferPjsipreg($row) {
+	if (!empty($row['pjsipreg'])) {
+		return $row['pjsipreg'];
+	}
+	if (isset($row['host']) && strtolower($row['host']) === 'dynamic') {
+		return 'RCV';
+	}
+	if (!empty($row['register'])) {
+		return 'SND';
+	}
+	return 'NONE';
+}
+
+/**
  * Copy pjsip file template to named trunk file
  * @param  array $tuple Trunk row
  * @return bool  
  */
 public function createPjsipTrunkInstance($tuple) {
+
+	if (empty($tuple['pjsipreg'])) {
+		$tuple['pjsipreg'] = $this->inferPjsipreg($tuple);
+	}
 
 	switch ($tuple['pjsipreg']) {
 		case "SND":
@@ -542,14 +563,31 @@ public function createPjsipTrunkInstance($tuple) {
 } 
 
 /**
- * get named pjsip template
- * @param  str $key Trunk row
- * @return bool  
+ * get named pjsip trunk instance (file under /etc/asterisk).
+ * Auto-creates from template if missing — restores/migrations leave
+ * lineio.pjsipuser NULL and omit sark_pjsip_{pkey}_trunk.conf.
+ * @param  str $key Trunk pkey
+ * @return string|false
  */
 public function getPjsipTrunkInstance($key) {
 
 	$targetFile = PJSIP . $key . '_' . PJSIP_TRUNK;
-	if (file_exists($targetFile)) {
+	if (!file_exists($targetFile) || 0 == filesize($targetFile)) {
+		$dbh = DB::getInstance();
+		$sth = $dbh->prepare("SELECT * FROM lineio WHERE pkey = ?");
+		$sth->execute(array($key));
+		$row = $sth->fetch(PDO::FETCH_ASSOC);
+		if (!$row) {
+			return false;
+		}
+		if (empty($row['pjsipreg'])) {
+			$row['pjsipreg'] = $this->inferPjsipreg($row);
+			$upd = $dbh->prepare("UPDATE lineio SET pjsipreg = ? WHERE pkey = ?");
+			$upd->execute(array($row['pjsipreg'], $key));
+		}
+		$this->createPjsipTrunkInstance($row);
+	}
+	if (file_exists($targetFile) && filesize($targetFile) > 0) {
 		return file_get_contents($targetFile);
 	}
 	return false;

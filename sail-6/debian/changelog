@@ -1,3 +1,12 @@
+sail (6.5.0-14) UNRELEASED; urgency=medium
+
+   - PJSIP trunks: auto-create missing sark_pjsip_{pkey}_trunk.conf on
+     edit/generate (DB restore leaves pjsipuser NULL and omits the file).
+   - Infer pjsipreg (SND/RCV/NONE) from host/register when unset; skip
+     empty trunk buffers in genPjsipTrunks.
+
+ -- KoKoSoft <admin@aelintra.com>  Thu, 29 Oct 2026 00:09:00 +0000
+
 sail (6.5.0-13) UNRELEASED; urgency=medium
 
    - Voicemail ageing: cron invokes bash (not perl) for agevmail.sh.
