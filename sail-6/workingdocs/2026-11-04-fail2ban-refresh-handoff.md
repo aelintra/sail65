@@ -8,7 +8,7 @@ Fail2Ban refresh for Ubuntu 24.04 + Net panel UI. Branch / release **sail 6.5.0-
 |------|------|--------|
 | Lab | `192.168.1.130` (`adler`) | Passwordless sudo. Hot-patched during development; install **6.5.0-15** for clean package state. Ban email left **off** (`f2b-mail.pref=off`) — SUPEMAIL points at a real customer mailbox. |
 | Deb builder | `192.168.1.78` | `debuild --no-lintian -us -uc -b` → `~/Git/sail65/sail_*_all.deb`. Push GitHub from Mac. |
-| Mac | `/Users/jeffstokoe/GiT/sail65` | Branch `feature/fail2ban-refresh-65015` (merge to main as needed). |
+| Mac | `/Users/jeffstokoe/GiT/sail65` | Branch `feature/fail2ban-refresh-65015` — release `e197fc3`, build `5b38ca3`. Deb: `sail_6.5.0-15_all.deb`. Merge to main as needed. |
 
 Also assessed **CVE-2026-98432** (kernel IPv4 TCP UAF): OS/kernel issue, not SAIL. Ubuntu 24.04 fix still WIP (`6.8.0-149.x`). Lab was on `6.8.0-147-generic`. Disabling MPTCP alone is not a fix; `mailhub=mail` is a valid ssmtp hub name (not a placeholder).
 
