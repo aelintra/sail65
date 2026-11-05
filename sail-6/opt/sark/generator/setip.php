@@ -73,9 +73,17 @@ else {
 		`echo IF1=$interface > /etc/shorewall/local.if1`;
 	}
 	
-	if ( file_exists( "/etc/fail2ban/jail.local")) {	
-		`sed -i --follow-symlinks '/^ignoreip/c \ignoreip = 127.0.0.1 $netaddress\/$cidr 224.0.1.0\/24' /etc/fail2ban/jail.local`;
-		`fail2ban-server reload > /dev/null`;
+	if ( is_executable( "/opt/sark/scripts/srkFail2banCtl.sh" ) ) {
+		`/opt/sark/scripts/srkFail2banCtl.sh apply-ignoreip $netaddress/$cidr > /dev/null 2>&1`;
+	} elseif ( file_exists( "/etc/fail2ban/jail.d/sail-jails.conf" ) ) {
+		`sed -i --follow-symlinks '/^ignoreip/c \ignoreip = 127.0.0.1\/8 ::1 $netaddress\/$cidr 224.0.1.0\/24' /etc/fail2ban/jail.d/sail-jails.conf`;
+		`fail2ban-client reload > /dev/null 2>&1`;
+	} elseif ( file_exists( "/etc/fail2ban/jail.local" ) ) {
+		`sed -i --follow-symlinks '/^ignoreip/c \ignoreip = 127.0.0.1\/8 ::1 $netaddress\/$cidr 224.0.1.0\/24' /etc/fail2ban/jail.local`;
+		`fail2ban-client reload > /dev/null 2>&1`;
+	}
+	if ( is_executable( "/opt/sark/scripts/srkFail2banMail.sh" ) ) {
+		`/opt/sark/scripts/srkFail2banMail.sh > /dev/null 2>&1`;
 	}
 		
 	if ( file_exists( "/etc/asterisk")) {

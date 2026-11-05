@@ -145,6 +145,7 @@ INSERT OR IGNORE INTO Panel(pkey,classname,displayname,weight,ability) values ('
 INSERT OR IGNORE INTO Panel(pkey,classname,displayname,weight,ability) values ('320','sarknetwork/main.php','IP Settings','50','update');
 INSERT OR IGNORE INTO Panel(pkey,classname,displayname,weight,ability) values ('330','sarkedsw/main.php','IPV4 Firewall','50','create');
 INSERT OR IGNORE INTO Panel(pkey,classname,displayname,weight,ability) values ('331','sarkedsw6/main.php','IPV6 Firewall','50','create');
+INSERT OR IGNORE INTO Panel(pkey,classname,displayname,weight,ability) values ('332','sarkfail2ban/main.php','Fail2Ban','50','update');
 INSERT OR IGNORE INTO Panel(pkey,classname,displayname,weight,ability) values ('333','sarkfqdnwlist/main.php','Dynamic FQDNs','50','create');
 INSERT OR IGNORE INTO Panel(pkey,classname,displayname,weight,ability) values ('335','sarkipblacklist/main.php','IP Blacklist','50','create');
 INSERT OR IGNORE INTO Panel(pkey,classname,displayname,weight,ability) values ('340','sarkfreset/main.php','Factory Reset','50','update');
@@ -204,6 +205,7 @@ INSERT OR IGNORE INTO PanelGroupPanel(PanelGroup_pkey,Panel_pkey) values ('500',
 INSERT OR IGNORE INTO PanelGroupPanel(PanelGroup_pkey,Panel_pkey) values ('550','320');
 INSERT OR IGNORE INTO PanelGroupPanel(PanelGroup_pkey,Panel_pkey) values ('550','330');
 INSERT OR IGNORE INTO PanelGroupPanel(PanelGroup_pkey,Panel_pkey) values ('550','331');
+INSERT OR IGNORE INTO PanelGroupPanel(PanelGroup_pkey,Panel_pkey) values ('550','332');
 
 
 COMMIT;

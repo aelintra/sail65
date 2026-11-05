@@ -10,9 +10,12 @@ rm -rf /etc/apache2/sites-available/sark*
 
 rm -rf /etc/service/srk*
 
-[ -L /etc/fail2ban/jail.local ] && rm -rf /etc/fail2ban/jail.local
-[ -L /etc/fail2ban/action.d/shorewall.local ] && rm -rf /etc/fail2ban/action.d/shorewall.local
-[ -L /etc/fail2ban/filter.d/asterisk.conf ] && /etc/fail2ban/filter.d/asterisk.conf 
+[ -L /etc/fail2ban/jail.local ] && rm -f /etc/fail2ban/jail.local
+[ -L /etc/fail2ban/action.d/shorewall.local ] && rm -f /etc/fail2ban/action.d/shorewall.local
+[ -L /etc/fail2ban/jail.d/sail-jails.conf ] && rm -f /etc/fail2ban/jail.d/sail-jails.conf
+[ -L /etc/fail2ban/jail.d/sail-apache.conf ] && rm -f /etc/fail2ban/jail.d/sail-apache.conf
+rm -f /etc/fail2ban/jail.d/sail-mail.conf
+[ -L /etc/fail2ban/filter.d/asterisk.conf ] && rm -f /etc/fail2ban/filter.d/asterisk.conf
 
 [ -e /etc/sudoers.d/sarkrssh ] && rm -rf /etc/sudoers.d/sarkrssh 
 

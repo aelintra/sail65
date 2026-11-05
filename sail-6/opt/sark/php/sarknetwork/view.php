@@ -707,6 +707,10 @@ private function saveEdit() {
 			fwrite($fh,$output) or die('Could not write to ssmtp.conf file');
 			fclose($fh);
 			$this->helper->request_syscmd ("chmod 664 /etc/ssmtp/ssmtp.conf");
+			# Refresh Fail2Ban ban-mail fragment when SMTP settings change (pref set on Fail2Ban panel)
+			if (is_executable("/opt/sark/scripts/srkFail2banMail.sh")) {
+				$this->helper->request_syscmd("/opt/sark/scripts/srkFail2banMail.sh");
+			}
 		}				
 
 		if ($timez !=  $oldtz ) {

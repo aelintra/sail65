@@ -1,0 +1,3 @@
+INSERT OR IGNORE INTO tt_help_core(pkey,displayname,htext) values ('f2bmail','Fail2Ban ban email','When ON, Fail2Ban emails ban notices if SMTP (Network) and Globals supervisor email are configured. When OFF, bans still apply but no mail is sent.');
+INSERT OR IGNORE INTO tt_help_core(pkey,displayname,htext) values ('f2bwhitelist','Fail2Ban whitelist','Extra IPs/CIDRs that Fail2Ban will never ban (in addition to localhost and the LAN). Use for office NATs, monitoring hosts, or SIP peers that must not be blocked.');
+INSERT OR IGNORE INTO tt_help_core(pkey,displayname,htext) values ('f2bunban','Unban IP','Remove an IP from all Fail2Ban jails. Does not add it to the whitelist — use whitelist if it should stay protected.');

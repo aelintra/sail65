@@ -1,3 +1,15 @@
+sail (6.5.0-15) UNRELEASED; urgency=medium
+
+   - Fail2ban: Ubuntu 24.04 jail.d fragments (sshd, asterisk, recidive,
+     apache-badbots); drop full jail.local symlink; banaction=shorewall;
+     file backend for Asterisk messages; setip rewrites ignoreip.
+   - Fail2ban ban email via action_mw when ssmtp mailhub + SUPEMAIL/EMAILALERT
+     are configured (srkFail2banMail.sh; Network SMTP save refreshes).
+   - UI: Net → Fail2Ban panel (ban-email, status, unban, whitelist);
+     srkFail2banCtl.sh + cache ignoreip extras.
+
+ -- KoKoSoft <admin@aelintra.com>  Wed, 04 Nov 2026 23:30:00 +0000
+
 sail (6.5.0-14) UNRELEASED; urgency=medium
 
    - PJSIP trunks: auto-create missing sark_pjsip_{pkey}_trunk.conf on

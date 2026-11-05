@@ -1,0 +1,47 @@
+# Fail2ban — Ubuntu 24.04 LTS (SAIL)
+
+Target platform: **Ubuntu 24.04 LTS.** SAIL keeps Shorewall as the ban backend.
+
+## Installer behaviour
+
+- **Does not** symlink a full `jail.local` (Ubuntu 24.04 fail2ban breaks on custom
+  `jail.local` with `%(auth_log)s`; Debian `jail.d/defaults-debian.conf` also forces
+  `backend=systemd`, which skips Asterisk file logs).
+- Symlinks `jail.d/sail-jails.conf` and `jail.d/sail-apache.conf` → `/etc/fail2ban/jail.d/`
+- Default `banaction = shorewall` (plus optional `action.d/shorewall.local` for `blocktype=drop`)
+- Generates `/etc/fail2ban/jail.d/sail-mail.conf` when Network SMTP + alert email are set
+  (`srkFail2banMail.sh`)
+- Runs `fail2ban-client -t` then reload when config is valid
+- `setip.php` rewrites `ignoreip` in `sail-jails.conf` to include the LAN CIDR
+
+## Jails
+
+| Jail | Config file | Purpose |
+|------|-------------|---------|
+| **sshd** | `jail.d/sail-jails.conf` | SSH brute-force. 3 failures in 10 min → ban 24 h. |
+| **asterisk** | `jail.d/sail-jails.conf` | SIP/PJSIP auth failures. 5 in 10 min → ban 10 min. Log: `/var/log/asterisk/messages`. |
+| **recidive** | `jail.d/sail-jails.conf` | Repeat offenders across jails. 3 bans in 24 h → ban 1 week. |
+| **sail-apache-badbots** | `jail.d/sail-apache.conf` | Bad User-Agents on Apache access logs. |
+
+## Ban email
+
+When `/etc/ssmtp/ssmtp.conf` has a usable `mailhub` (ssmtp; often named `mail`) and
+Globals `SUPEMAIL` (or `EMAILALERT`) is set, fail2ban uses `action_mw` (ban + mail)
+via generated `sail-mail.conf`. Empty/`localhost` hubs are ignored. Preference file
+`/opt/sark/cache/f2b-mail.pref` (`on`/`off`) is toggled from **IP Settings**; SMTP
+save refreshes the fragment.
+
+## Panel controls
+
+**Net → Fail2Ban** (`sarkfail2ban`): ban-email on/off, jail status, unban, extra ignoreip whitelist.
+
+Ops helper: `/opt/sark/scripts/srkFail2banCtl.sh` (status writes `/opt/sark/cache/f2b-status.txt`;
+extras in `/opt/sark/cache/f2b-ignoreip.extra`).
+
+## Ubuntu 24.04 notes
+
+- Fail2ban 1.0.2-3 can fail under Python 3.12 (`No module named 'asynchat'`). Prefer
+  fail2ban **1.1.0 or later** when Ubuntu publishes it; until then watch `systemctl status fail2ban`.
+- Validate: `sudo fail2ban-client -t`
+- Status: `sudo fail2ban-client status`
+- Confirm Asterisk watches a file: `sudo fail2ban-client status asterisk` should list a log path, not only journal matches.

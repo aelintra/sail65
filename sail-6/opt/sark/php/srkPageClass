@@ -599,6 +599,10 @@ Class page {
                 'smtpusestrttls' => array(
                                 'checked' =>'YES',
                                 'unchecked' => 'NO'
+                                ),
+                'f2bmail' => array(
+                                'checked' =>'YES',
+                                'unchecked' => 'NO'
                                 ),                
                 'strategy' => array(
                                 'checked' =>'balance',

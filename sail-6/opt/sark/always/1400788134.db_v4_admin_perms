@@ -37,6 +37,7 @@ INSERT OR IGNORE INTO UserPanel(User_pkey,Panel_pkey,perms) values ('admin','310
 INSERT OR IGNORE INTO UserPanel(User_pkey,Panel_pkey,perms) values ('admin','320','create');
 INSERT OR IGNORE INTO UserPanel(User_pkey,Panel_pkey,perms) values ('admin','330','create');
 INSERT OR IGNORE INTO UserPanel(User_pkey,Panel_pkey,perms) values ('admin','331','create');
+INSERT OR IGNORE INTO UserPanel(User_pkey,Panel_pkey,perms) values ('admin','332','update');
 INSERT OR IGNORE INTO UserPanel(User_pkey,Panel_pkey,perms) values ('admin','333','create');
 INSERT OR IGNORE INTO UserPanel(User_pkey,Panel_pkey,perms) values ('admin','335','create');
 INSERT OR IGNORE INTO UserPanel(User_pkey,Panel_pkey,perms) values ('admin','340','create');
