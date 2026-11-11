@@ -52,6 +52,10 @@ foreach ($allowedRoots as $root) {
 		break;
 	}
 }
+// Tenant MOH lives in /usr/share/asterisk/moh-{cluster}/ (siblings of sounds/)
+if (!$ok && preg_match('#^/usr/share/asterisk/moh-[^/]+/#', $fullPath)) {
+	$ok = true;
+}
 if (!$ok) {
 	http_response_code(403);
 	exit('Forbidden');

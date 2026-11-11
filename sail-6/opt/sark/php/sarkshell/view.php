@@ -40,7 +40,8 @@ Class sarkshell {
 	 *  Start the iFrame
 	 */
 		echo '<div class="w3-container w3-paddingw3-margin-right">';
-		echo '<iframe class="w3-margin-right w3-card-4 w3-white" id="shellframe" scrolling="no" src="/console" style="height:40em;width:100%;" ></iframe>' . PHP_EOL;
+		// Gate issues signed SAIL_CONSOLE cookie (session required), then redirects to /console/
+		echo '<iframe class="w3-margin-right w3-card-4 w3-white" id="shellframe" scrolling="no" src="/php/console_gate.php" style="height:40em;width:100%;" ></iframe>' . PHP_EOL;
 		echo '</div>';
 	/*
 	 * done

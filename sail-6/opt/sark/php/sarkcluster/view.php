@@ -366,8 +366,8 @@ private function showEdit($pkey=false) {
 		foreach ($mohlist as $row ) {
 			echo '<tr id="' . $row . '">'. PHP_EOL; 
 			echo '<td >' . $row . '</td>' . PHP_EOL;
- 			echo '<td><audio controls><source src="/server-moh/moh-' . $pkey . '/' . $row . '"></audio></td>'; 
-//			echo '<td ><a href="/server-moh/moh-' . $pkey . '/' . $row . '"><img src="/sark-common/icons/play.png" border=0 title = "Click to play" ></a></td>';
+			$mohfile = '/usr/share/asterisk/moh-' . $pkey . '/' . $row;
+			echo '<td><audio controls><source src="/php/downloadg.php?inline=1&amp;dfile=' . htmlspecialchars($mohfile, ENT_QUOTES) . '"></audio></td>';
 			echo '<td><a href="'; 
 			echo $_SERVER['PHP_SELF'];
 			echo '?mohdelete=yes&amp;pkey=';

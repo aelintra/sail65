@@ -1,0 +1,25 @@
+#!/usr/bin/php
+<?php
+/**
+ * Apache RewriteMap prg: validate SAIL_CONSOLE cookie value.
+ * stdin:  token (exp.hmac)
+ * stdout: ok | deny
+ */
+$keyfile = '/opt/sark/cache/console.hmac.key';
+$key = (is_readable($keyfile)) ? trim(file_get_contents($keyfile)) : '';
+
+while (($line = fgets(STDIN)) !== false) {
+	$tok = trim($line);
+	$ok = false;
+	if ($key !== '' && preg_match('/^(\d+)\.([0-9a-f]{64})$/', $tok, $m)) {
+		$exp = (int) $m[1];
+		if ($exp >= time()) {
+			$expect = hash_hmac('sha256', (string) $exp, $key);
+			if (hash_equals($expect, $m[2])) {
+				$ok = true;
+			}
+		}
+	}
+	fwrite(STDOUT, $ok ? "ok\n" : "deny\n");
+	fflush(STDOUT);
+}

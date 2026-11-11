@@ -429,7 +429,7 @@ private function genMail($mailbox) {
 		$dt = new DateTime("@$epoch");
 		echo '<td  class="icons">' . $dt->format('d/m/y  H:i:s') . '</td>' . PHP_EOL;
 		echo '<td  class="w3-hide-medium w3-hide-small"><a href="/php/downloadg.php?dfile=' . $fullpath . '"><i class="fas fa-download"></i></a></td>' . PHP_EOL;									
-		echo '<td  class="icons"><a href="/server-vmail/default/' . $this->pkey . "/$mailbox/" . $file . '"><i class="fas fa-play"></i></a></td>' . PHP_EOL; 
+		echo '<td  class="icons"><a href="/php/downloadg.php?inline=1&amp;dfile=' . htmlspecialchars($fullpath, ENT_QUOTES) . '"><i class="fas fa-play"></i></a></td>' . PHP_EOL; 
 		$this->myPanel->deleteClick($_SERVER['PHP_SELF'],$deletepath);
 		echo '</td>' . PHP_EOL;
 		echo '</tr>'. PHP_EOL;

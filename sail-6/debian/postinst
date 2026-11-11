@@ -179,6 +179,16 @@ a2enmod rewrite > /dev/null 2>&1
 a2enmod proxy > /dev/null 2>&1
 a2enmod proxy_http > /dev/null 2>&1
 
+# Console (/console → shellinabox) HMAC gate key + checker
+chmod +x /opt/sark/scripts/srkConsoleCookieCheck
+CONSOLE_HMAC_KEY=/opt/sark/cache/console.hmac.key
+if [ ! -s "$CONSOLE_HMAC_KEY" ]; then
+    umask 077
+    openssl rand -hex 32 > "$CONSOLE_HMAC_KEY"
+fi
+chown root:www-data "$CONSOLE_HMAC_KEY"
+chmod 640 "$CONSOLE_HMAC_KEY"
+
 #HTTPS
 a2enmod ssl
 

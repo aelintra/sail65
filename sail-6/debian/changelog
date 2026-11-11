@@ -1,3 +1,24 @@
+sail (6.5.0-16) UNRELEASED; urgency=medium
+
+   - Voicemail: sarkphone play via session-backed downloadg.php?inline=1;
+     drop Apache /server-vmail Alias so mailbox WAVs are not publicly
+     listable/fetchable without login.
+   - MOH: cluster panel play via downloadg.php?inline=1; allowlist
+     /usr/share/asterisk/moh-*; drop Apache /server-moh Alias (was whole
+     /usr/share/asterisk tree).
+   - Greetings: sarkgreeting play via downloadg.php?inline=1; drop
+     Apache /server-sounds Alias and its Indexes Directory.
+   - Console: keep /console → shellinabox; require SAIL session via
+     console_gate.php signed SAIL_CONSOLE cookie + Apache RewriteMap
+     check (unauthenticated /console → 403).
+   - Apache harden: remove www/event.php (hardcoded AMI creds); DocumentRoot
+     -Indexes; HTTP→HTTPS redirect for non-provisioning paths; drop .phps
+     source type, empty cgi-bin ScriptAliases, and Satisfy any.
+   - Remove unused Apache 2.2 leftovers: opt/sark/cache/httpd.conf and
+     service/httpd-srk (never linked from postinst; SAIL uses apache2).
+
+ -- KoKoSoft <admin@aelintra.com>  Wed, 11 Nov 2026 16:45:00 +0000
+
 sail (6.5.0-15) UNRELEASED; urgency=medium
 
    - Fail2ban: Ubuntu 24.04 jail.d fragments (sshd, asterisk, recidive,
