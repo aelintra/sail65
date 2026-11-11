@@ -1,3 +1,11 @@
+sail (6.5.0-17) UNRELEASED; urgency=medium
+
+   - Rebuild: ensure www/event.php and unused Apache 2.2 leftovers
+     (cache/httpd.conf, service/httpd-srk) are not packaged; postinst
+     removes them if left behind by 6.5.0-16.
+
+ -- KoKoSoft <admin@aelintra.com>  Wed, 11 Nov 2026 18:15:00 +0000
+
 sail (6.5.0-16) UNRELEASED; urgency=medium
 
    - Voicemail: sarkphone play via session-backed downloadg.php?inline=1;

@@ -189,6 +189,11 @@ fi
 chown root:www-data "$CONSOLE_HMAC_KEY"
 chmod 640 "$CONSOLE_HMAC_KEY"
 
+# Removed from package (6.5.0-16+); purge leftovers from earlier builds
+rm -f /opt/sark/www/event.php
+rm -f /opt/sark/cache/httpd.conf
+rm -rf /opt/sark/service/httpd-srk
+
 #HTTPS
 a2enmod ssl
 
