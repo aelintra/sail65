@@ -1,3 +1,16 @@
+sail (6.5.0-18) UNRELEASED; urgency=medium
+
+   - Let's Encrypt (HTTP-01) via Apache webroot: ACME Alias + redirect
+     exception on sark-http.conf; certbot dependency; Cert panel setup /
+     renew / remove; daily le-renew cron.
+   - apply-active-cert.sh: custom → LE → snakeoil for Apache + Asterisk
+     HTTP/WSS (:8089) and PJSIP TLS; ssl-cert group readability for LE
+     keys; restart Asterisk so WSS rebinds.
+   - Default Asterisk http/TLS transport certs to snakeoil so :8089 can
+     bind on fresh installs before a customer cert is applied.
+
+ -- KoKoSoft <admin@aelintra.com>  Tue, 17 Nov 2026 15:45:00 +0000
+
 sail (6.5.0-17) UNRELEASED; urgency=medium
 
    - Rebuild: ensure www/event.php and unused Apache 2.2 leftovers

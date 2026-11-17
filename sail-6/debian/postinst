@@ -133,6 +133,29 @@ chmod 751 /etc/ssl/private
 usermod -a -G ssl-cert www-data
 usermod -a -G ssl-cert asterisk
 
+# Let's Encrypt / TLS identity dirs + scripts
+mkdir -p /opt/sark/var/acme-challenge/.well-known/acme-challenge
+mkdir -p /opt/sark/etc/identity /opt/sark/etc/ssl/custom
+chown -R www-data:www-data /opt/sark/var/acme-challenge
+chmod 755 /opt/sark/var /opt/sark/var/acme-challenge /opt/sark/etc/identity /opt/sark/etc/ssl /opt/sark/etc/ssl/custom
+chmod +x /opt/sark/scripts/apply-active-cert.sh \
+	/opt/sark/scripts/le-acme-common.sh \
+	/opt/sark/scripts/le-first-cert.sh \
+	/opt/sark/scripts/le-renew.sh \
+	/opt/sark/scripts/le-remove-cert.sh 2>/dev/null || true
+
+# Migrate legacy paste-installed customer cert into custom/ so apply-active-cert owns it
+if [ -f /etc/ssl/certs/ssl-cert-sark-customer.pem ] && [ ! -L /etc/ssl/certs/ssl-cert-sark-customer.pem ] \
+	&& [ ! -f /opt/sark/etc/ssl/custom/fullchain.pem ]; then
+	cp -a /etc/ssl/certs/ssl-cert-sark-customer.pem /opt/sark/etc/ssl/custom/fullchain.pem
+	if [ -f /etc/ssl/private/ssl-cert-sark-customer.key ] && [ ! -L /etc/ssl/private/ssl-cert-sark-customer.key ]; then
+		cp -a /etc/ssl/private/ssl-cert-sark-customer.key /opt/sark/etc/ssl/custom/privkey.pem
+	fi
+	chown root:ssl-cert /opt/sark/etc/ssl/custom/fullchain.pem /opt/sark/etc/ssl/custom/privkey.pem 2>/dev/null || true
+	chmod 644 /opt/sark/etc/ssl/custom/fullchain.pem 2>/dev/null || true
+	chmod 640 /opt/sark/etc/ssl/custom/privkey.pem 2>/dev/null || true
+fi
+
 # remove any previous sark references
 rm -rf /etc/apache2/sites-enabled/sark*
 rm -rf /etc/apache2/sites-available/sark*
@@ -160,8 +183,9 @@ a2ensite sark-http
 a2ensite sark-ssl
 a2ensite sark-name
 
-# enable sark opional fragments for certificates 
-if [ -e /etc/ssl/certs/ssl-cert-sark-customer.pem ]; then
+# enable sark optional fragments for certificates (apply-active-cert finalises)
+if [ -e /etc/ssl/certs/ssl-cert-sark-customer.pem ] || [ -f /opt/sark/etc/ssl/custom/fullchain.pem ] \
+	|| [ -f /opt/sark/etc/identity/le-domain ]; then
     a2ensite sark-certs
     a2dissite sark-default-ssl
 else 
@@ -178,6 +202,11 @@ fi
 a2enmod rewrite > /dev/null 2>&1
 a2enmod proxy > /dev/null 2>&1
 a2enmod proxy_http > /dev/null 2>&1
+
+# Apply active TLS (custom → LE → snakeoil) so Asterisk :8089 and Apache agree
+if [ -x /opt/sark/scripts/apply-active-cert.sh ]; then
+	/bin/bash /opt/sark/scripts/apply-active-cert.sh || true
+fi
 
 # Console (/console → shellinabox) HMAC gate key + checker
 chmod +x /opt/sark/scripts/srkConsoleCookieCheck

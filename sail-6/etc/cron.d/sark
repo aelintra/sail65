@@ -40,3 +40,6 @@
 
 #recording offload every 10 minutes
 */10 * * * * root sh /opt/sark/scripts/srkoffload_simple.sh >/dev/null 2>&1
+
+# Let's Encrypt renew (HTTP-01 via Apache webroot; apply-active-cert on success)
+17 3 * * * root /bin/bash /opt/sark/scripts/le-renew.sh >> /var/log/sail-le-renew.log 2>&1

@@ -16,6 +16,7 @@ Do **not** store secrets (sudo passwords, AMI secrets, customer credentials) her
 
 ## Latest handoff
 
+- [2026-11-17-letsencrypt-apache-handoff.md](./2026-11-17-letsencrypt-apache-handoff.md) — Let's Encrypt via Apache HTTP-01; **6.5.0-18** in tree (build/install next).
 - [2026-11-16-webrtc-brindley-audit-handoff.md](./2026-11-16-webrtc-brindley-audit-handoff.md) — WebRTC audit on `.135`; certs/8089/Shorewall blockers; next = real-system install.
 - [2026-11-11-apache-harden-console-handoff.md](./2026-11-11-apache-harden-console-handoff.md) — audio Aliases removed, Console cookie gate, HTTP harden, **6.5.0-17** on lab; CVE-2026-98432 kernel note.
 - [2026-11-04-fail2ban-refresh-handoff.md](./2026-11-04-fail2ban-refresh-handoff.md) — Fail2Ban jail.d + Net panel, **6.5.0-15**.
@@ -25,6 +26,6 @@ Do **not** store secrets (sudo passwords, AMI secrets, customer credentials) her
 
 ## Open TODOs
 
-- WebRTC on Brindley / live: install customer TLS → 8089/WSS → Shorewall 8089 → create WebRTC endpoints (see [2026-11-16 handoff](./2026-11-16-webrtc-brindley-audit-handoff.md)).
+- Build/install **6.5.0-18**, issue LE on live/Brindley, confirm `:8089` WSS, then WebRTC endpoints ([2026-11-17](./2026-11-17-letsencrypt-apache-handoff.md), [2026-11-16](./2026-11-16-webrtc-brindley-audit-handoff.md)).
 - [2026-10-26-todo-harden-audio-aliases.md](./2026-10-26-todo-harden-audio-aliases.md) — **done** in 6.5.0-16 (aliases + Console gate); kept for history.
 - [2026-10-26-todo-apache-sark-includes.md](./2026-10-26-todo-apache-sark-includes.md) — finish or retire `sarkServerName` / `preventIpAccess` includes (never wired into Apache).
