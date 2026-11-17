@@ -1,7 +1,7 @@
 #!/bin/bash
 # First-time Let's Encrypt certificate (HTTP-01 webroot via Apache).
 # Usage: le-first-cert.sh <fqdn> <email>
-# Run as root. Requires certbot, Apache ACME Alias, port 80 reachable from the internet.
+# Run as root. Requires certbot, Apache ACME Alias; opens Shorewall tcp/80 for the challenge then closes it.
 # SAIL_LE_STAGING=1 — staging CA (see le-acme-common.sh)
 
 set -e
@@ -15,6 +15,13 @@ SCRIPT_DIR="$(dirname "$(readlink -f "$0" 2>/dev/null || echo "$0")")"
 # shellcheck source=le-acme-common.sh
 . "$SCRIPT_DIR/le-acme-common.sh"
 APPLY_SCRIPT="$SCRIPT_DIR/apply-active-cert.sh"
+OPEN_SCRIPT="$SCRIPT_DIR/le-port80-open.sh"
+CLOSE_SCRIPT="$SCRIPT_DIR/le-port80-close.sh"
+
+close_on_exit() {
+	le_run_script "$CLOSE_SCRIPT" 2>/dev/null || true
+}
+trap close_on_exit EXIT
 
 if ! command -v certbot >/dev/null 2>&1; then
 	echo "ERROR: certbot not installed (apt install certbot)." >&2
@@ -30,6 +37,7 @@ fi
 le_require_apache_acme
 ensure_identity_dir
 ensure_le_webroot
+le_run_script "$OPEN_SCRIPT"
 
 # shellcheck disable=SC2046
 certbot certonly $(le_certbot_auth_args) $(le_certbot_staging_args) \

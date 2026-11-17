@@ -149,8 +149,8 @@ private function showMain() {
 	$this->myPanel->internalEditBoxStart();
 	$this->myPanel->subjectBar("Let's Encrypt");
 	echo '<div class="w3-margin-bottom w3-text-blue-grey w3-small">' . PHP_EOL;
-	echo '<p>Issues a trusted certificate for one public FQDN via HTTP-01 (port 80 must reach this PBX). Apache serves <code>/.well-known/acme-challenge/</code>; the same cert is applied to Apache HTTPS and Asterisk WSS (:8089).</p>' . PHP_EOL;
-	echo '<p>Prerequisites: DNS A/AAAA for the FQDN → this host; Shorewall allows tcp/80 (default).</p>' . PHP_EOL;
+	echo '<p>Issues a trusted certificate for one public FQDN via HTTP-01. Apache serves <code>/.well-known/acme-challenge/</code>; the same cert is applied to Apache HTTPS and Asterisk WSS (:8089).</p>' . PHP_EOL;
+	echo '<p>Prerequisites: DNS A/AAAA for the FQDN → this host; cloud/security-group allows tcp/80. Shorewall keeps public :80 <strong>closed</strong> normally and opens it only for the issue/renew window.</p>' . PHP_EOL;
 	echo '</div>' . PHP_EOL;
 
 	if ($source === 'letsencrypt') {

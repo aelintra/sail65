@@ -1,6 +1,6 @@
 # Session handoff — 2026-11-17
 
-Let's Encrypt for SAIL via **Apache HTTP-01** (PBX3-style flow, no nginx). Release **sail 6.5.0-18** (changelog bumped; deb not built this session).
+Let's Encrypt for SAIL via **Apache HTTP-01** (PBX3-style flow, no nginx). Releases **6.5.0-18** (LE + apply) / **6.5.0-19** (Shorewall open/close for :80).
 
 ## Goal
 
@@ -15,6 +15,7 @@ Trusted TLS for Apache `:443` and Asterisk WSS `:8089` (WebRTC), matching PBX3�
 | Cert panel | LE setup (FQDN + email), renew, remove; custom paste → `/opt/sark/etc/ssl/custom/`; status from `tls-active.json` |
 | Asterisk defaults | `sark_http.conf` + `sark_pjsip_transport.tmpl` → **snakeoil** so `:8089` can bind before customer cert |
 | Package | `certbot` + `ssl-cert` Depends; postinst dirs + migrate legacy customer PEM → custom/; runs apply; cron `17 3 * * *` → `le-renew.sh` |
+| Shorewall (:80) | Public tcp/80 **closed** by default (LAN HTTP kept). `le-port80-open/close` toggle `sark_inline_le` around issue/renew (SG may stay open). |
 
 ### Active cert model
 

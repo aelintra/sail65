@@ -1,3 +1,12 @@
+sail (6.5.0-19) UNRELEASED; urgency=medium
+
+   - Let's Encrypt: Shorewall opens public tcp/80 only for issue/renew
+     (le-port80-open/close via sark_inline_le), then closes it again.
+   - Default sark_rules: HTTP from LAN only (provisioning); public :80
+     no longer permanently open (cloud VCL path unchanged).
+
+ -- KoKoSoft <admin@aelintra.com>  Tue, 17 Nov 2026 17:00:00 +0000
+
 sail (6.5.0-18) UNRELEASED; urgency=medium
 
    - Let's Encrypt (HTTP-01) via Apache webroot: ACME Alias + redirect

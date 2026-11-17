@@ -142,7 +142,9 @@ chmod +x /opt/sark/scripts/apply-active-cert.sh \
 	/opt/sark/scripts/le-acme-common.sh \
 	/opt/sark/scripts/le-first-cert.sh \
 	/opt/sark/scripts/le-renew.sh \
-	/opt/sark/scripts/le-remove-cert.sh 2>/dev/null || true
+	/opt/sark/scripts/le-remove-cert.sh \
+	/opt/sark/scripts/le-port80-open.sh \
+	/opt/sark/scripts/le-port80-close.sh 2>/dev/null || true
 
 # Migrate legacy paste-installed customer cert into custom/ so apply-active-cert owns it
 if [ -f /etc/ssl/certs/ssl-cert-sark-customer.pem ] && [ ! -L /etc/ssl/certs/ssl-cert-sark-customer.pem ] \
@@ -356,11 +358,22 @@ if [ -d /etc/shorewall ]; then
     if [  "$?" -ne "0" ] ; then
         echo ACCEPT net:\$LAN \$FW tcp 443 - - >> /etc/shorewall/sark_rules 
     fi
+    # LE temporary HTTP-01 include (closed by default)
+    if [ ! -e /etc/shorewall/sark_inline_le ]; then
+        printf '#\n' > /etc/shorewall/sark_inline_le
+    fi
+    # Close public :80 by default (LAN HTTP kept for provisioning). LE open/close
+    # toggles sark_inline_le. Skip if cloud VCL left world-open ports for lockout prevention.
+    VCL_FLAG=$(/usr/bin/sqlite3 /opt/sark/db/sark.db "select VCL from globals limit 1" 2>/dev/null || true)
+    if [ "$VCL_FLAG" != "1" ]; then
+        sed -i 's/^ACCEPT net \$FW tcp 80 .*/ACCEPT net:$LAN $FW tcp 80 - - # HTTP LAN/' /etc/shorewall/sark_rules
+    fi
     touch /etc/shorewall/sark_inline_fqdn
     touch /etc/shorewall/sark_inline_limit
     chown www-data:www-data /etc/shorewall/sark_rules
     chown www-data:www-data /etc/shorewall/sark_inline_fqdn
     chown www-data:www-data /etc/shorewall/sark_inline_limit
+    chown www-data:www-data /etc/shorewall/sark_inline_le
 #    chown www-data:www-data /etc/shorewall/sark_blrules
 fi
 
