@@ -13,15 +13,15 @@ Trusted TLS for Apache `:443` and Asterisk WSS `:8089` (WebRTC), matching PBX3�
 | Item | Value |
 |------|--------|
 | Branch | `feature/letsencrypt-apache-65018` (not merged to `main`) |
-| Commits | `144dd71` (6.5.0-18), `f7d482d` (6.5.0-19); **6.5.0-20** staging→prod heal; **6.5.0-21** postinst stop clobbering shorewall `rules` |
-| Debs built on `.78` | through `sail_6.5.0-20_all.deb`; **6.5.0-21** in tree (not built yet) |
+| Commits | `144dd71` (6.5.0-18), `f7d482d` (6.5.0-19), `6df47b6` (6.5.0-20 staging→prod heal + **6.5.0-21** postinst stop clobbering shorewall `rules`) |
+| Debs built on `.78` | through `sail_6.5.0-21_all.deb` (rebuilt 17/11 from `6df47b6`; also on Mac workspace) |
 
 ## Deploy status
 
 | Host | sail | Notes |
 |------|------|--------|
 | `192.168.1.135` (`ubu2204arm`) lab | **6.5.0-19** | LE UI + ACME Alias + open/close smoke **OK**. No public :80 → cannot issue real LE here. |
-| `webo1001.terminator.cloud` (Brindley EC2) | **6.5.0-19** | Installed 17/11; production LE (YE2) for `webo1001.terminator.cloud` applied to `:443` + `:8089`. Shorewall **8089** opened; **SG 8089** still pending (WebRTC client source unknown). Cron `le-renew.sh` present; stock `certbot.timer` still enabled. |
+| `webo1001.terminator.cloud` (Brindley EC2) | **6.5.0-21** | `dpkg -i` clean rebuild 17/11 (US SSH as `ubuntu` OK). Prod LE (YE2) still on `:443` + `:8089`. Shorewall `rules` hash **unchanged** across upgrade (`INCLUDE sark_inline_le` + `ACCEPT … 8089` kept). **SG 8089** still pending. Cron `le-renew.sh` present; stock `certbot.timer` still enabled. |
 
 ### Brindley EC2 (from ops notes)
 
@@ -36,25 +36,7 @@ Trusted TLS for Apache `:443` and Asterisk WSS `:8089` (WebRTC), matching PBX3�
 | Hostname (guest) | `ubu2204amd` (per 16/11 notes) |
 | Net panel | FQDN set; ext length 4; timeserver London (17/11) |
 
-**Next deploy command once :22 works:**
-
-```bash
-# from Mac (deb already on .78 or /tmp)
-scp -i Documents/pemfiles/Brindley-Webo.pem \
-  tech@192.168.1.78:Git/sail65/sail_6.5.0-19_all.deb \
-  ubuntu@webo1001.terminator.cloud:/tmp/
-ssh -i Documents/pemfiles/Brindley-Webo.pem ubuntu@webo1001.terminator.cloud \
-  'sudo apt-get install -y /tmp/sail_6.5.0-19_all.deb'
-```
-
-Then LE (staging first if desired):
-
-```bash
-sudo SAIL_LE_STAGING=1 /opt/sark/scripts/le-first-cert.sh webo1001.terminator.cloud EMAIL
-# or Cert panel → Get Let's Encrypt certificate
-```
-
-Also open Shorewall **8089/tcp** (and confirm SG) for WSS after cert applies.
+**Deploy (done for 6.5.0-21):** SSH as `ubuntu` + `Brindley-Webo.pem`. Same-version upgrades need `sudo dpkg -i /tmp/sail_*.deb` (`apt-get install` skips).
 
 ## What landed in tree
 
@@ -87,7 +69,7 @@ Panel privileged ops → **srk-ua-helper** (`request_syscmd`).
 
 ## Open / next
 
-1. Build/deploy **6.5.0-21** (postinst no longer `cp -f` shorewall `rules` on upgrade). webo1001 on **6.5.0-20** with production YE2; keep **8089** in `sark_rules` or `rules` (now preserved across upgrades).
+1. ~~Build/deploy **6.5.0-21**~~ **done** (webo1001; Shorewall `rules` preserved).
 2. SG: allow **8089** once WebRTC client source is known (Shorewall already open).
 3. Create WebRTC extensions → Commit.
 4. Optional: disable stock `certbot.timer` so only SAIL `le-renew.sh` (open/close + apply) renews.
