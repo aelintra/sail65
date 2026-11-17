@@ -1,3 +1,11 @@
+sail (6.5.0-22) UNRELEASED; urgency=medium
+
+  - postinst: after wiping sites-*/sark*, re-enable sark65api_L12
+    Apache vhost (sarkapi :44300) when /opt/sark65api_L12 is present
+    so sail upgrades no longer drop the API site.
+
+ -- KoKoSoft <admin@aelintra.com>  Tue, 17 Nov 2026 21:20:00 +0000
+
 sail (6.5.0-21) UNRELEASED; urgency=medium
 
   - postinst: stop force-overwriting /etc/shorewall/rules (and

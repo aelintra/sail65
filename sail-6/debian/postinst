@@ -200,6 +200,22 @@ else
     a2dissite sark-prov-ssl
 fi
 
+# Re-enable sark65api_L12 vhost if present. The rm above clears sites-*/sark*
+# which also removes sarkapi (name prefix match) after API install.
+if [ -f /opt/sark65api_L12/apache2/sites-available/sarkapi.conf ]; then
+    [ ! -e /etc/apache2/sites-available/sarkapi.conf ] && \
+        ln -s /opt/sark65api_L12/apache2/sites-available/sarkapi.conf \
+            /etc/apache2/sites-available/sarkapi.conf
+    a2ensite sarkapi >/dev/null 2>&1 || true
+    if ! grep -q '44300' /etc/apache2/ports.conf 2>/dev/null; then
+        if grep -q 'Listen \[::\]:443' /etc/apache2/ports.conf 2>/dev/null; then
+            sed -i '/Listen \[::\]:443$/a\        Listen [::]:44300' /etc/apache2/ports.conf
+        else
+            printf '\n<IfModule ssl_module>\n\tListen [::]:44300\n</IfModule>\n' >> /etc/apache2/ports.conf
+        fi
+    fi
+fi
+
 #HTTPD
 a2enmod rewrite > /dev/null 2>&1
 a2enmod proxy > /dev/null 2>&1
