@@ -1,14 +1,14 @@
 # Session handoff — 2026-11-11
 
-Apache audio-alias lockdown, Console session gate, HTTP harden. Release **sail 6.5.0-16**.
+Apache audio-alias lockdown, Console session gate, HTTP harden. Releases **sail 6.5.0-16** / **6.5.0-17**. Merged to `main` (`d307433`).
 
 ## Environment
 
 | Role | Host | Notes |
 |------|------|--------|
-| Lab | `192.168.1.130` (`adler`) | Passwordless sudo. Installed **6.5.0-16** this session. Smoke: unauth `/console` → **403**; audio Aliases gone; `console.hmac.key` present. |
-| Deb builder | `192.168.1.78` | `debuild --no-lintian -us -uc -b` → `~/Git/sail65/sail_6.5.0-16_all.deb`. Mac→builder sync via `tar`/`scp` (no rsync on Mac). `.78` now has Mac `id_rsa` for outbound SSH to `.130`. Push GitHub from Mac. |
-| Mac | `/Users/jeffstokoe/GiT/sail65` | Branch was `feature/fail2ban-refresh-65015` when this work landed; package version **6.5.0-16**. |
+| Lab | `192.168.1.130` (`adler`) | Passwordless sudo. Installed **6.5.0-17**. Smoke: unauth `/console` → **403**; audio Aliases gone; `event.php` absent (404); `console.hmac.key` present. |
+| Deb builder | `192.168.1.78` | `debuild --no-lintian -us -uc -b` → `~/Git/sail65/sail_6.5.0-17_all.deb`. Mac→builder sync via `tar`/`scp` (no rsync on Mac). `.78` now has Mac `id_rsa` for outbound SSH to `.130`. Push GitHub from Mac. |
+| Mac | `/Users/jeffstokoe/GiT/sail65` | `main` tip **6.5.0-17** (`d307433`). |
 
 ## Releases
 
@@ -35,7 +35,23 @@ Apache audio-alias lockdown, Console session gate, HTTP harden. Release **sail 6
 - Dropped `.phps` AddType, empty `cgi-bin` ScriptAliases, `Satisfy any`.
 - Removed unused Apache 2.2 leftovers: `cache/httpd.conf`, `service/httpd-srk`.
 
-Deb: `sail_6.5.0-16_all.deb` on builder `~/Git/sail65/` and was installed on `.130`.
+Deb: `sail_6.5.0-16_all.deb` on builder `~/Git/sail65/` (still present).
+
+### 6.5.0-17
+
+- Rebuild so `www/event.php`, `cache/httpd.conf`, and `service/httpd-srk` are **not** packaged (6.5.0-16 deb was built from a stale `.78` tree and still shipped them).
+- `debian/postinst` purges those paths on upgrade.
+- Deb: `sail_6.5.0-17_all.deb` on builder; installed on `.130`.
+
+## CVE-2026-98432 (kernel, not SAIL)
+
+Canonical published fixes: https://ubuntu.com/security/CVE-2026-98432 (updated 2026-11-11). Critical IPv4 TCP UAF → RCE.
+
+| Host | Running | Fix (noble) |
+|------|---------|-------------|
+| `.130` (`adler`) | **6.8.0-149-generic** (patched 2026-11-11) | **`6.8.0-149.149`** via `linux-image-generic` |
+
+**Action (other Ubuntu 24.04 PBXes):** `sudo apt update && sudo apt upgrade`, then **reboot**. Confirm with `uname -r` → `6.8.0-149-generic` (or later). nft mitigation on the CVE page is optional/temporary only.
 
 ## Key files
 
@@ -49,11 +65,11 @@ Deb: `sail_6.5.0-16_all.deb` on builder `~/Git/sail65/` and was installed on `.1
 ## Open TODOs
 
 1. `sark_includes` — finish or retire ([todo](./2026-10-26-todo-apache-sark-includes.md)).
-2. Optional: merge/rename git branch away from `fail2ban-refresh-65015` now that **6.5.0-16** is the tip.
+2. Kernel CVE-2026-98432 on **customer** hosts: apt upgrade → reboot → verify `uname -r` ≥ **6.8.0-149** (lab `.130` done).
 3. Copy deb to Mac/GitHub artifact if desired (`scp` from `.78`).
 
 ## Suggested next work
 
-1. Customer soak on Console panel (login → Console → shellinabox OS login).
-2. Decide A/B/C on `sark_includes`.
-3. Merge **6.5.0-16** to main when ready.
+1. Patch/reboot remaining customer VMs for CVE-2026-98432.
+2. Customer soak on Console panel (login → Console → shellinabox OS login).
+3. Decide A/B/C on `sark_includes`.

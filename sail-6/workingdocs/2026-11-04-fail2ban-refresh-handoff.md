@@ -57,5 +57,5 @@ Also assessed **CVE-2026-98432** (kernel IPv4 TCP UAF): OS/kernel issue, not SAI
 ## Suggested next work
 
 1. Install **6.5.0-15** on `.130` / customer VM; confirm Net → Fail2Ban after login.
-2. Watch Ubuntu noble for CVE-2026-98432 kernel (`≥ 6.8.0-149`) + reboot.
+2. CVE-2026-98432: Canonical fixed noble in **6.8.0-149.149** (see [2026-11-11 handoff](./2026-11-11-apache-harden-console-handoff.md)); apt upgrade + reboot.
 3. Optional: panel polish after first customer feedback.
