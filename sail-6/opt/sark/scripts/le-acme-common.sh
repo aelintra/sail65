@@ -43,6 +43,54 @@ le_certbot_auth_args() {
 	printf '%s' "--webroot -w $LE_WEBROOT"
 }
 
+# Echo live fullchain path if it exists for fqdn; else return 1.
+le_live_fullchain() {
+	local fqdn="$1"
+	local pem="/etc/letsencrypt/live/${fqdn}/fullchain.pem"
+	[ -n "$fqdn" ] && [ -f "$pem" ] || return 1
+	printf '%s' "$pem"
+}
+
+# True if PEM is a Let's Encrypt staging issuer (CN contains "(STAGING)").
+le_cert_is_staging() {
+	local pem="$1"
+	local issuer
+	[ -f "$pem" ] || return 1
+	command -v openssl >/dev/null 2>&1 || return 1
+	issuer=$(openssl x509 -noout -issuer -in "$pem" 2>/dev/null | sed -n 's/^issuer=//p' | head -1)
+	printf '%s' "$issuer" | grep -q '(STAGING)'
+}
+
+# Clear LE markers and apply so Apache/Asterisk use custom or snakeoil before deleting lineage.
+le_fallback_to_snakeoil() {
+	local apply="${SCRIPT_DIR:-/opt/sark/scripts}/apply-active-cert.sh"
+	ensure_identity_dir
+	rm -f "$LE_DOMAIN_FILE" "$LE_EMAIL_FILE"
+	if [ -x "$apply" ] || [ -f "$apply" ]; then
+		le_run_script "$apply"
+	else
+		echo "ERROR: apply-active-cert.sh not found at $apply" >&2
+		return 1
+	fi
+}
+
+# If apache2ctl configtest fails (often broken LE symlink after certbot delete), fall back and re-test.
+le_heal_apache_ssl_if_broken() {
+	if ! command -v apache2ctl >/dev/null 2>&1; then
+		return 0
+	fi
+	if apache2ctl configtest >/dev/null 2>&1; then
+		return 0
+	fi
+	echo "le-acme: apache2ctl configtest failed; falling back to snakeoil and retrying" >&2
+	le_fallback_to_snakeoil || true
+	if apache2ctl configtest >/dev/null 2>&1; then
+		return 0
+	fi
+	echo "ERROR: apache2ctl configtest failed after snakeoil fallback; fix Apache before LE." >&2
+	return 1
+}
+
 le_require_apache_acme() {
 	if ! command -v apache2ctl >/dev/null 2>&1 && ! command -v apachectl >/dev/null 2>&1; then
 		echo "ERROR: apache2ctl not found." >&2
@@ -53,12 +101,7 @@ le_require_apache_acme() {
 		echo "ERROR: Apache ACME Alias missing from sark-http.conf (upgrade sail)." >&2
 		return 1
 	fi
-	if command -v apache2ctl >/dev/null 2>&1; then
-		apache2ctl configtest >/dev/null 2>&1 || {
-			echo "ERROR: apache2ctl configtest failed; fix Apache before LE." >&2
-			return 1
-		}
-	fi
+	le_heal_apache_ssl_if_broken || return 1
 	systemctl is-active --quiet apache2 2>/dev/null || systemctl start apache2 2>/dev/null || true
 	return 0
 }

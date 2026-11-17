@@ -2,7 +2,9 @@
 # First-time Let's Encrypt certificate (HTTP-01 webroot via Apache).
 # Usage: le-first-cert.sh <fqdn> <email>
 # Run as root. Requires certbot, Apache ACME Alias; opens Shorewall tcp/80 for the challenge then closes it.
-# SAIL_LE_STAGING=1 — staging CA (see le-acme-common.sh)
+# SAIL_LE_STAGING=1 — staging CA (see le-acme-common.sh).
+# Without staging: if a staging live cert exists for fqdn, fall back to snakeoil, delete
+# that lineage, then issue production (avoids bricking Apache SSLCertificateFile).
 
 set -e
 if [ $# -lt 2 ]; then
@@ -37,6 +39,18 @@ fi
 le_require_apache_acme
 ensure_identity_dir
 ensure_le_webroot
+
+# Staging → production: --keep-until-expiring would keep the untrusted staging
+# cert. Fall back to snakeoil first so certbot delete cannot brick Apache SSL paths.
+live_pem=""
+if live_pem=$(le_live_fullchain "$FQDN") && [ "${SAIL_LE_STAGING:-}" != "1" ]; then
+	if le_cert_is_staging "$live_pem"; then
+		echo "le-first-cert: replacing staging cert for $FQDN with production" >&2
+		le_fallback_to_snakeoil
+		certbot delete --cert-name "$FQDN" --non-interactive >/dev/null 2>&1 || true
+	fi
+fi
+
 le_run_script "$OPEN_SCRIPT"
 
 # shellcheck disable=SC2046

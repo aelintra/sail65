@@ -351,8 +351,17 @@ if [ -d /etc/shorewall ]; then
     echo 'INCLUDE local.lan' > /etc/shorewall/params
     echo 'INCLUDE local.if1' >> /etc/shorewall/params
 
-    cp -f /opt/sark/etc/shorewall/rules /etc/shorewall
+    # Never clobber existing rules on upgrade (customer/SSH edits, e.g. WSS :8089).
+    [ ! -e /etc/shorewall/rules ] && cp /opt/sark/etc/shorewall/rules /etc/shorewall/rules
     [ ! -e /etc/shorewall/sark_rules ] && cp /opt/sark/etc/shorewall/sark_rules /etc/shorewall
+    # Upgrade path: ensure LE include without rewriting the whole rules file
+    if [ -f /etc/shorewall/rules ] && ! grep -qE '^[[:space:]]*INCLUDE[[:space:]]+sark_inline_le([[:space:]]|$)' /etc/shorewall/rules; then
+        if grep -qE '^[[:space:]]*INCLUDE[[:space:]]+sark_inline_fqdn' /etc/shorewall/rules; then
+            sed -i '/^[[:space:]]*INCLUDE[[:space:]]\+sark_inline_fqdn/a INCLUDE sark_inline_le' /etc/shorewall/rules
+        else
+            sed -i '/^[[:space:]]*INCLUDE[[:space:]]\+sark_rules/i INCLUDE sark_inline_le' /etc/shorewall/rules
+        fi
+    fi
     #for pre 5.x upgrades check that 443 is open (otherwise they won't be able to login)
     grep  -q "tcp\s*443\s*" /etc/shorewall/sark_rules
     if [  "$?" -ne "0" ] ; then
@@ -390,9 +399,7 @@ sleep 10
 
 #Shorewall6 setup
 if [ -d /etc/shorewall6 ]; then
-# the rules file always gets refreshed
-# 
-    cp -f /opt/sark/etc/shorewall6/rules /etc/shorewall6
+    # Never clobber existing rules on upgrade (same policy as IPv4).
     sed -i 's/startup=0/startup=1/' /etc/default/shorewall6
     for file in `ls /opt/sark/etc/shorewall6/` ; do
                 [ ! -e /etc/shorewall6/$file ] && cp -f /opt/sark/etc/shorewall6/$file /etc/shorewall6            

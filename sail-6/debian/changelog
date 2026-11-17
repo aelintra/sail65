@@ -1,9 +1,25 @@
+sail (6.5.0-21) UNRELEASED; urgency=medium
+
+  - postinst: stop force-overwriting /etc/shorewall/rules (and
+    shorewall6) on upgrade so customer/SSH firewall edits persist;
+    ensure INCLUDE sark_inline_le without clobbering the file.
+
+ -- KoKoSoft <admin@aelintra.com>  Tue, 17 Nov 2026 18:25:00 +0000
+
+sail (6.5.0-20) UNRELEASED; urgency=medium
+
+  - Let's Encrypt: staging→production reissue falls back to snakeoil
+    before certbot delete so Apache SSL paths stay valid; auto-heal
+    broken SSLCertificateFile (missing LE symlink) before ACME.
+
+ -- KoKoSoft <admin@aelintra.com>  Tue, 17 Nov 2026 18:20:00 +0000
+
 sail (6.5.0-19) UNRELEASED; urgency=medium
 
-   - Let's Encrypt: Shorewall opens public tcp/80 only for issue/renew
-     (le-port80-open/close via sark_inline_le), then closes it again.
-   - Default sark_rules: HTTP from LAN only (provisioning); public :80
-     no longer permanently open (cloud VCL path unchanged).
+  - Let's Encrypt: Shorewall opens public tcp/80 only for issue/renew
+    (le-port80-open/close via sark_inline_le), then closes it again.
+  - Default sark_rules: HTTP from LAN only (provisioning); public :80
+    no longer permanently open (cloud VCL path unchanged).
 
  -- KoKoSoft <admin@aelintra.com>  Tue, 17 Nov 2026 17:00:00 +0000
 
