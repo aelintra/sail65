@@ -1,7 +1,7 @@
 # LDAP contact add and tenant OU fixes (sail65 port)
 
-**Date:** 2026-11-17  
-**Branch:** `fix/ldap-contact-and-tenant-ou`  
+**Date:** 2026-11-17 (ported); release **6.5.0-23** 2026-11-18  
+**Branch:** `feature/letsencrypt-apache-65018` (LDAP cherry-pick from `fix/ldap-contact-and-tenant-ou`)  
 **Source:** sail6 `workingdocs/ldap-contact-and-tenant-ou-fixes.md` (`vrev` → `main`, `306a64a`)
 
 ## Summary

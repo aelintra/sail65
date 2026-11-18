@@ -1,3 +1,11 @@
+sail (6.5.0-23) UNRELEASED; urgency=medium
+
+  - LDAP Directory: set uid on contact add, strip empty attributes
+    (Invalid syntax), fix org empty-check typo in sarkldap.
+  - Tenants: create LDAP ou=<tenant> under ou=contacts on tenant add.
+
+ -- KoKoSoft <admin@aelintra.com>  Wed, 18 Nov 2026 22:40:00 +0000
+
 sail (6.5.0-22) UNRELEASED; urgency=medium
 
   - postinst: after wiping sites-*/sark*, re-enable sark65api_L12
