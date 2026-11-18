@@ -21,7 +21,7 @@ Trusted TLS for Apache `:443` and Asterisk WSS `:8089` (WebRTC), matching PBX3�
 | Host | sail | Notes |
 |------|------|--------|
 | `192.168.1.135` (`ubu2204arm`) lab | **6.5.0-19** | LE UI + ACME Alias + open/close smoke **OK**. No public :80 → cannot issue real LE here. |
-| `webo1001.terminator.cloud` (Brindley EC2) | **6.5.0-21** | `dpkg -i` clean rebuild 17/11 (US SSH as `ubuntu` OK). Prod LE (YE2) still on `:443` + `:8089`. Shorewall `rules` hash **unchanged** across upgrade (`INCLUDE sark_inline_le` + `ACCEPT … 8089` kept). **SG 8089** still pending. Cron `le-renew.sh` present; stock `certbot.timer` still enabled. |
+| `webo1001.terminator.cloud` (Brindley EC2) | **6.5.0-21** (18/11) | Prod LE (YE2) on `:443` + `:8089`. Shorewall 8089 open; **SG 8089 open** (confirmed 18/11). Asterisk TLS/WSS verified readable LE certs. **6.5.0-23** built (LDAP) but not deployed yet — see [2026-11-18 handoff](./2026-11-18-ldap-asterisk-tls-handoff.md). Cron `le-renew.sh` present; stock `certbot.timer` still enabled. |
 
 ### Brindley EC2 (from ops notes)
 
@@ -70,11 +70,12 @@ Panel privileged ops → **srk-ua-helper** (`request_syscmd`).
 ## Open / next
 
 1. ~~Build/deploy **6.5.0-21**~~ **done** (webo1001; Shorewall `rules` preserved).
-2. SG: allow **8089** once WebRTC client source is known (Shorewall already open).
-3. Create WebRTC extensions → Commit.
-4. Optional: disable stock `certbot.timer` so only SAIL `le-renew.sh` (open/close + apply) renews.
-5. Still open: `sark_includes` A/B/C; `sark_rtp.conf` STUN for remote media; sail65-docs WebRTC page.
-6. Merge feature branch to `main` when Brindley soak is OK.
+2. ~~SG **8089**~~ **done** (ops confirmed 18/11; Shorewall already open).
+3. Deploy **6.5.0-23** (LDAP) — see [2026-11-18 handoff](./2026-11-18-ldap-asterisk-tls-handoff.md).
+4. Create WebRTC extensions → Commit.
+5. Optional: disable stock `certbot.timer` so only SAIL `le-renew.sh` (open/close + apply) renews.
+6. Still open: `sark_includes` A/B/C; `sark_rtp.conf` STUN for remote media; sail65-docs WebRTC page.
+7. Merge feature branch to `main` when Brindley soak is OK.
 
 **Staging→prod note:** Do not manually `certbot delete` while Apache still points at live LE paths. From **6.5.0-20**, `le-first-cert.sh` (without `SAIL_LE_STAGING=1`) detects a staging live cert, falls back to snakeoil, deletes the lineage, then issues production.
 
