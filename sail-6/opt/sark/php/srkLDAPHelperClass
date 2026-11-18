@@ -82,14 +82,23 @@ public function dnGet($dn) {
  * Post a new entry
  */
 public function Add($arg) {
-	$lkey = "uid=" . uniqid('',true) . ","  . $this->addressbook . "," . $this->base;
+	$uid = uniqid('',true);
+	$lkey = "uid=" . $uid . ","  . $this->addressbook . "," . $this->base;
+	// RDN attribute must also be present on the entry
+	$arg["uid"] = $uid;
+	// LDAP rejects empty attribute values (Invalid syntax)
+	foreach ($arg as $k => $v) {
+		if (!is_array($v) && $v === "") {
+			unset($arg[$k]);
+		}
+	}
 	$sr = ldap_add($this->ds, $lkey, $arg);
 	if (!$sr) {
 		if (ldap_errno($this->ds) == 0x44) { 
          return "Entry already exists!";
 		} 
 		else { 
-			$this->helper->logit("ldap error with key=$lkey, arg=$arg",0);
+			$this->helper->logit("ldap error with key=$lkey, err=" . ldap_error($this->ds) . ", arg=" . print_r($arg, true),0);
 			return "LDAP ERROR - " . ldap_error($this->ds); 
 		}
     } 
@@ -122,11 +131,11 @@ public function AddNewTenant($tenant) {
          	return "Entry already exists!";
 		} 
 		else { 
-			$this->helper->logit("ldap error with key=$lkey",0);
+			$this->helper->logit("ldap error with key=$lkey, err=" . ldap_error($this->ds),0);
 			return "LDAP ERROR - " . ldap_error($this->ds); 
 		}
     } 
-    return "Saved new LDAP contact ";	
+    return "Saved new LDAP tenant OU ";	
 }
 
 /**	
