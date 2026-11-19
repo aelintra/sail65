@@ -10,14 +10,15 @@ Do **not** store secrets (sudo passwords, AMI secrets, customer credentials) her
 |------|------|--------|
 | **Deb builder** | `192.168.1.78` (`deb11-1`) | SSH `tech@192.168.1.78`. Repos under `~/Git/` (sail65, etc.). Build: `cd ~/Git/sail65/sail-6 && debuild --no-lintian -us -uc -b` → `~/Git/sail65/sail_*_all.deb`. Cannot push to GitHub over HTTPS; push from Mac. Mac has no `rsync` — sync with `tar`/`scp`. |
 | Lab / customer rebuild | `192.168.1.130` (`adler`) | SSH `tech@192.168.1.130`. **Passwordless sudo** (`sudo -n`). Target **sail 6.5.0-17**. Kernel **6.8.0-149** (CVE-2026-98432 patched). |
-| Brindley lab | `192.168.1.135` (`ubu2204arm`) | SSH `tech@192.168.1.135`. **Passwordless sudo**. sail **6.5.0-19** (LE feature branch). No public :80. |
-| Brindley EC2 | `webo1001.terminator.cloud` (`99.80.166.113`) | Key `Brindley-Webo.pem`; SSH as `ubuntu`. sail **6.5.0-22** (18/11 eve); prod LE YE2; Shorewall + **SG 8089 open**; WSS/9005 REGISTER OK server-side. WebPhone client bug (WSS→`dhbm8x.pbx3.com`) with SPA team. **6.5.0-23** ready, not deployed. |
+| Brindley lab | `192.168.1.135` (`ubu2204arm`) | SSH `tech@192.168.1.135`. **Passwordless sudo**. sail **6.5.0-23** (LE feature branch). No public :80. |
+| Brindley EC2 | `webo1001.terminator.cloud` (`99.80.166.113`) | Key `Brindley-Webo.pem`; SSH as `ubuntu`. sail **6.5.0-22**; prod LE YE2; Shorewall + **SG 8089 open**; WebRTC **9005** OK after SPA overnight fix. **6.5.0-23** ready, not deployed. |
 | Customer test VM | `192.168.9.4` (`adler-pbx-02`) | SSH `pbxadmin@192.168.9.4` (key). Sudo **requires password**. |
 | Other test | `192.168.1.12` (`iitac2404`) | SSH `tech@192.168.1.12`. |
 
 ## Latest handoff
 
-- [2026-11-18-ldap-asterisk-tls-handoff.md](./2026-11-18-ldap-asterisk-tls-handoff.md) — LDAP **6.5.0-23**; webo1001 WSS/9005 OK; admin-password forensics; WebPhone WSS host bug → SPA team.
+- [2026-11-19-lab23-webrtc-dependabot-handoff.md](./2026-11-19-lab23-webrtc-dependabot-handoff.md) — **6.5.0-23** on `.135`; webo1001 9005 OK (SPA fix); Java4Shell N/A; sark65api Dependabot/npm PR merged.
+- [2026-11-18-ldap-asterisk-tls-handoff.md](./2026-11-18-ldap-asterisk-tls-handoff.md) — LDAP **6.5.0-23**; webo1001 WSS/9005 server-side; admin-password forensics; WebPhone WSS host bug (since fixed).
 - [2026-11-17-ldap-contact-and-tenant-ou-fixes.md](./2026-11-17-ldap-contact-and-tenant-ou-fixes.md) — LDAP fix detail / OU backfill snippet.
 - [2026-11-17-letsencrypt-apache-handoff.md](./2026-11-17-letsencrypt-apache-handoff.md) — LE Apache HTTP-01 + Shorewall :80 open/close; branch `feature/letsencrypt-apache-65018`.
 - [2026-11-16-webrtc-brindley-audit-handoff.md](./2026-11-16-webrtc-brindley-audit-handoff.md) — WebRTC audit (lab `.135`); certs/8089/Shorewall blockers.
@@ -29,8 +30,8 @@ Do **not** store secrets (sudo passwords, AMI secrets, customer credentials) her
 
 ## Open TODOs
 
-- **Blocked on WebPhone/SPA:** client opens `wss://dhbm8x.pbx3.com:8089/ws` instead of configured webo1001 proxy ([2026-11-18](./2026-11-18-ldap-asterisk-tls-handoff.md)).
-- webo1001: deploy **6.5.0-23** (LDAP); after SPA fix retest WebRTC 9005; optional disable stock `certbot.timer`.
+- webo1001: deploy **6.5.0-23** (LDAP); smoke Directory/tenant OU; optional more WebRTC extensions; optional disable stock `certbot.timer`.
 - Merge `feature/letsencrypt-apache-65018` to `main` after Brindley soak.
+- Optional: upgrade `/opt/sark65api_L12` on lab hosts per merged install-doc upgrade section.
 - [2026-10-26-todo-harden-audio-aliases.md](./2026-10-26-todo-harden-audio-aliases.md) — **done** in 6.5.0-16 (aliases + Console gate); kept for history.
 - [2026-10-26-todo-apache-sark-includes.md](./2026-10-26-todo-apache-sark-includes.md) — finish or retire `sarkServerName` / `preventIpAccess` includes (never wired into Apache).
