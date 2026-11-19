@@ -170,7 +170,7 @@ rm -rf /etc/apache2/sites-available/sark*
 [ ! -L /etc/apache2/sites-available/sark-ssl.conf ] && ln -s /opt/sark/etc/apache2/sites-available/sark-ssl.conf /etc/apache2/sites-available
 [ ! -L /etc/apache2/sites-available/sark-prov-ssl.conf ] && ln -s /opt/sark/etc/apache2/sites-available/sark-prov-ssl.conf /etc/apache2/sites-available
 
-# Use our versions of asterisk/modules, asterisk/http & asterisk/pjsip
+# Use our versions of asterisk/modules, asterisk/http, asterisk/pjsip & asterisk/rtp
 
 [ ! -e /etc/asterisk/modules.install.conf ] && mv /etc/asterisk/modules.conf /etc/asterisk/modules.install.conf
 [ ! -L /etc/asterisk/modules.conf ] && ln -s /etc/asterisk/sark_modules.conf /etc/asterisk/modules.conf
@@ -178,6 +178,8 @@ rm -rf /etc/apache2/sites-available/sark*
 [ ! -L /etc/asterisk/http.conf ] && ln -s /etc/asterisk/sark_http.conf /etc/asterisk/http.conf
 [ ! -e /etc/asterisk/pjsip.install.conf ] && mv /etc/asterisk/pjsip.conf /etc/asterisk/pjsip.install.conf
 [ ! -L /etc/asterisk/pjsip.conf ] && ln -s /etc/asterisk/sark_pjsip.conf /etc/asterisk/pjsip.conf
+[ ! -e /etc/asterisk/rtp.install.conf ] && mv /etc/asterisk/rtp.conf /etc/asterisk/rtp.install.conf
+[ ! -L /etc/asterisk/rtp.conf ] && ln -s /etc/asterisk/sark_rtp.conf /etc/asterisk/rtp.conf
 
 
 # enable sark apache fragments

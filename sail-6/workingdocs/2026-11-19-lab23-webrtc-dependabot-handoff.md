@@ -53,11 +53,18 @@ Merged PR: https://github.com/aelintra/sark65api_L12/pull/1 (`9e46114` on `main`
 
 Appliance apply after merge: `git pull` + `composer install --no-dev` under `/opt/sark65api_L12` (see that install doc). npm not required on the PBX.
 
+## Decision — Asterisk TLS scanner noise vs Fail2Ban (do not revisit)
+
+webo1001 `messages` shows intermittent `ast_iostream_start_tls` / `Unable to set up ssl connection with peer` ERRORs (e.g. `200.2.134.230`, `93.123.109.123`). These are internet scanners on open **8089** (WSS/TLS handshake fail / reset), not SIP auth.
+
+**Accepted as expected noise.** Do **not** add a Fail2Ban jail for these lines: no credentials involved, false-positive risk on flaky clients, ban is after the cost is paid, and the existing `[asterisk]` jail already covers FailedAuth / wrong-password. Revisit only if volume becomes a real CPU/log load problem; prefer quieter logging or SG tightening then, not F2B-as-security.
+
 ## Open / next
 
 1. Deploy **6.5.0-23** to webo1001; smoke Directory contact add (empty org) + new tenant → LDAP OU; OU backfill if needed.
 2. Optional further WebRTC extensions now that 9005 works.
 3. Optional: disable stock `certbot.timer` (use SAIL `le-renew.sh` only); curly quote in WebRTC callerid generator.
 4. Merge `feature/letsencrypt-apache-65018` to `main` after Brindley soak.
-5. Still open: `sark_includes` A/B/C; `sark_rtp.conf` STUN; sail65-docs WebRTC page; deb prune policy; missing **6.5.0-16/17** debs if needed.
+5. Still open: `sark_includes` A/B/C; sail65-docs WebRTC page; deb prune policy; missing **6.5.0-16/17** debs if needed.
+   - **6.5.0-24:** `rtp.conf` → `sark_rtp.conf` symlink + `rtp.install.conf` in `debian/postinst` and `srkEnsureAsteriskPlatform.sh` (was copy-only; stock `rtp.conf` stayed active). Deb built; pending lab `.135` install verify before webo1001.
 6. Optional: pull/merge API upgrade on lab `.135` `/opt/sark65api_L12` when convenient.

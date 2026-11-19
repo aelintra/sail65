@@ -1,3 +1,11 @@
+sail (6.5.0-24) UNRELEASED; urgency=medium
+
+  - Asterisk: activate sark_rtp.conf on install/restore — move stock
+    rtp.conf to rtp.install.conf and symlink rtp.conf → sark_rtp.conf
+    (postinst + srkEnsureAsteriskPlatform.sh). Fixes unused ICE/STUN.
+
+ -- KoKoSoft <admin@aelintra.com>  Thu, 19 Nov 2026 21:00:00 +0000
+
 sail (6.5.0-23) UNRELEASED; urgency=medium
 
   - LDAP Directory: set uid on contact add, strip empty attributes
