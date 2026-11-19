@@ -258,6 +258,17 @@ private function saveNew() {
 		if ($ret == 'OK') {
 //			$this->helper->commitOn();	
 			$this->message = "Saved new Tenant " . $tuple['pkey'] . "!";
+			// Ensure LDAP addressbook OU exists for this tenant (contacts live under ou=<tenant>,ou=contacts)
+			if ($this->ldap->Connect()) {
+				$ldapMsg = $this->ldap->AddNewTenant($tuple['pkey']);
+				$this->ldap->Close();
+				if (strpos($ldapMsg, 'LDAP ERROR') !== false) {
+					$this->message .= " Warning: " . $ldapMsg;
+				}
+			}
+			else {
+				$this->message .= " Warning: could not connect to LDAP to create tenant OU";
+			}
 		}
 		else {
 			$this->invalidForm = True;

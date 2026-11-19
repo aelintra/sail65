@@ -1,3 +1,65 @@
+sail (6.5.0-24) UNRELEASED; urgency=medium
+
+  - Asterisk: activate sark_rtp.conf on install/restore — move stock
+    rtp.conf to rtp.install.conf and symlink rtp.conf → sark_rtp.conf
+    (postinst + srkEnsureAsteriskPlatform.sh). Fixes unused ICE/STUN.
+
+ -- KoKoSoft <admin@aelintra.com>  Thu, 19 Nov 2026 21:00:00 +0000
+
+sail (6.5.0-23) UNRELEASED; urgency=medium
+
+  - LDAP Directory: set uid on contact add, strip empty attributes
+    (Invalid syntax), fix org empty-check typo in sarkldap.
+  - Tenants: create LDAP ou=<tenant> under ou=contacts on tenant add.
+
+ -- KoKoSoft <admin@aelintra.com>  Wed, 18 Nov 2026 22:40:00 +0000
+
+sail (6.5.0-22) UNRELEASED; urgency=medium
+
+  - postinst: after wiping sites-*/sark*, re-enable sark65api_L12
+    Apache vhost (sarkapi :44300) when /opt/sark65api_L12 is present
+    so sail upgrades no longer drop the API site.
+
+ -- KoKoSoft <admin@aelintra.com>  Tue, 17 Nov 2026 21:20:00 +0000
+
+sail (6.5.0-21) UNRELEASED; urgency=medium
+
+  - postinst: stop force-overwriting /etc/shorewall/rules (and
+    shorewall6) on upgrade so customer/SSH firewall edits persist;
+    ensure INCLUDE sark_inline_le without clobbering the file.
+
+ -- KoKoSoft <admin@aelintra.com>  Tue, 17 Nov 2026 18:25:00 +0000
+
+sail (6.5.0-20) UNRELEASED; urgency=medium
+
+  - Let's Encrypt: staging→production reissue falls back to snakeoil
+    before certbot delete so Apache SSL paths stay valid; auto-heal
+    broken SSLCertificateFile (missing LE symlink) before ACME.
+
+ -- KoKoSoft <admin@aelintra.com>  Tue, 17 Nov 2026 18:20:00 +0000
+
+sail (6.5.0-19) UNRELEASED; urgency=medium
+
+  - Let's Encrypt: Shorewall opens public tcp/80 only for issue/renew
+    (le-port80-open/close via sark_inline_le), then closes it again.
+  - Default sark_rules: HTTP from LAN only (provisioning); public :80
+    no longer permanently open (cloud VCL path unchanged).
+
+ -- KoKoSoft <admin@aelintra.com>  Tue, 17 Nov 2026 17:00:00 +0000
+
+sail (6.5.0-18) UNRELEASED; urgency=medium
+
+   - Let's Encrypt (HTTP-01) via Apache webroot: ACME Alias + redirect
+     exception on sark-http.conf; certbot dependency; Cert panel setup /
+     renew / remove; daily le-renew cron.
+   - apply-active-cert.sh: custom → LE → snakeoil for Apache + Asterisk
+     HTTP/WSS (:8089) and PJSIP TLS; ssl-cert group readability for LE
+     keys; restart Asterisk so WSS rebinds.
+   - Default Asterisk http/TLS transport certs to snakeoil so :8089 can
+     bind on fresh installs before a customer cert is applied.
+
+ -- KoKoSoft <admin@aelintra.com>  Tue, 17 Nov 2026 15:45:00 +0000
+
 sail (6.5.0-17) UNRELEASED; urgency=medium
 
    - Rebuild: ensure www/event.php and unused Apache 2.2 leftovers

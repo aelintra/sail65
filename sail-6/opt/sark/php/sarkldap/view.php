@@ -304,7 +304,7 @@ private function saveNew() {
 		else {
 			$ldapargs["cn"] = $ldapargs["sn"];
 		}
-		if (isset($_POST['org']) && $_POST['phone'] != "") {
+		if (isset($_POST['org']) && $_POST['org'] != "") {
 			$ldapargs["o"] = $_POST['org'];
 		}
 		if (isset($_POST['phone']) && $_POST['phone'] != "") {

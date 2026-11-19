@@ -2,7 +2,7 @@
 #
 # Reinstall SAIL Asterisk platform files that must not be permanently
 # replaced by an older customer backup (PJSIP templates, include chain,
-# modules/http policy, and the pjsip/modules/http symlinks).
+# modules/http/rtp policy, and the pjsip/modules/http/rtp symlinks).
 #
 # Safe to run after backup restore or any time /etc/asterisk was wiped.
 # Runtime generated configs (sark_pjsip_*_phone.conf, ready_*.conf, etc.)
@@ -43,7 +43,7 @@ do
 	fi
 done
 
-# Ensure SAIL include/module/http wiring (stock samples from old backups
+# Ensure SAIL include/module/http/rtp wiring (stock samples from old backups
 # often overwrite these as plain files).
 ensure_link() {
 	local link="$1"
@@ -61,6 +61,7 @@ ensure_link() {
 ensure_link pjsip.conf sark_pjsip.conf
 ensure_link modules.conf sark_modules.conf
 ensure_link http.conf sark_http.conf
+ensure_link rtp.conf sark_rtp.conf
 
 echo "srkEnsureAsteriskPlatform: SAIL Asterisk platform files restored"
 exit 0

@@ -21,6 +21,8 @@ INCLUDE sark_inline_limit
 #?SECTION RELATED
 ?SECTION NEW
 INCLUDE sark_inline_fqdn
+# Temporary Let's Encrypt HTTP-01 (written by le-port80-open/close)
+INCLUDE sark_inline_le
 
 
 # Reject Ping from the "bad" net zone.. and prevent your log from being flooded..
