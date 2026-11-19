@@ -1,6 +1,6 @@
 # Session handoff — 2026-11-19
 
-Lab install of **6.5.0-23**, WebPhone/9005 unblock on webo1001, Java4Shell triage, and Dependabot/npm harden for **sark65api_L12**.
+Lab install of **6.5.0-23**, WebPhone/9005 unblock on webo1001, Java4Shell triage, Dependabot/npm harden for **sark65api_L12**, then evening **6.5.0-24** (`rtp.conf` → `sark_rtp.conf`) built, merged to **`main`**, deployed to `.135` + webo1001; media confirmed OK.
 
 Prior: [2026-11-18-ldap-asterisk-tls-handoff.md](./2026-11-18-ldap-asterisk-tls-handoff.md).  
 LDAP detail: [2026-11-17-ldap-contact-and-tenant-ou-fixes.md](./2026-11-17-ldap-contact-and-tenant-ou-fixes.md).
@@ -9,13 +9,13 @@ LDAP detail: [2026-11-17-ldap-contact-and-tenant-ou-fixes.md](./2026-11-17-ldap-
 
 | Host | sail | Notes |
 |------|------|--------|
-| `192.168.1.135` (`ubu2204arm`) | **6.5.0-23** | Installed from Mac repo deb; upgrade safety check OK (see below). |
-| `webo1001.terminator.cloud` | **6.5.0-22** | Still not on **-23**. WebRTC ext **9005** working after SPA overnight config change. |
+| `192.168.1.135` (`ubu2204arm`) | **6.5.0-24** | Upgraded 19/11; `rtp.conf` → `sark_rtp.conf`, stock as `rtp.install.conf`; STUN live (was `0.0.0.0:0`). |
+| `webo1001.terminator.cloud` | **6.5.0-24** | Upgraded 19/11 from **-22**; rtp/STUN live; LE YE2 kept; Shorewall **8089** + iptables OK; WSS `:8089/ws` up. User confirmed **media flowing** on WebRTC after upgrade. |
 | `192.168.1.130` (`adler`) | unchanged this session | — |
 
-Branch remains **`feature/letsencrypt-apache-65018`** (not merged to `main`).
+**`main`** includes LE path through **6.5.0-24** (merge `573f3de`). Feature branch `feature/letsencrypt-apache-65018` pushed at `f0f4929` (same tip as pre-merge release commit).
 
-## Lab `.135` — 6.5.0-23 install
+## Lab `.135` — 6.5.0-23 install (earlier)
 
 - Copied `sail_6.5.0-23_all.deb` → `dpkg -i` as `tech` (passwordless sudo).
 - Pre/post compare: admin hash/salt + lastlogin, Cluster `ldapropwd`, globals (`PJSIP`, EXTLEN, AGENTSTART, LDAP*), table counts, `htpasswd`, console HMAC, Shorewall `rules`/`sark_rules`/`sark_inline_le`, `sark_customer_*.conf` — **all preserved**.
@@ -26,7 +26,7 @@ Branch remains **`feature/letsencrypt-apache-65018`** (not merged to `main`).
 
 ## webo1001 — WebRTC 9005
 
-SPA/dev team overnight config change fixed the WebPhone WSS host bug (was opening `wss://dhbm8x.pbx3.com:8089/ws` instead of configured webo1001 proxy). User reports **9005 working OK**. Sail WSS path was already verified 18/11.
+SPA/dev team overnight config change fixed the WebPhone WSS host bug (was opening `wss://dhbm8x.pbx3.com:8089/ws` instead of configured webo1001 proxy). User reports **9005 working OK**. Sail WSS path was already verified 18/11. Post-**-24** STUN: media still OK (user confirmed session end).
 
 ## CVE-2026-114938 (Java4Shell)
 
@@ -59,12 +59,18 @@ webo1001 `messages` shows intermittent `ast_iostream_start_tls` / `Unable to set
 
 **Accepted as expected noise.** Do **not** add a Fail2Ban jail for these lines: no credentials involved, false-positive risk on flaky clients, ban is after the cost is paid, and the existing `[asterisk]` jail already covers FailedAuth / wrong-password. Revisit only if volume becomes a real CPU/log load problem; prefer quieter logging or SG tightening then, not F2B-as-security.
 
+## 6.5.0-24 — rtp.conf → sark_rtp.conf (done)
+
+Omission: `sark_rtp.conf` was packaged/copied but never linked; stock Debian `rtp.conf` stayed active (STUN `0.0.0.0:0`).
+
+Fix: `debian/postinst` + `srkEnsureAsteriskPlatform.sh` now move stock → `rtp.install.conf` and symlink `rtp.conf` → `sark_rtp.conf` (same pattern as modules/http/pjsip). Deb `sail_6.5.0-24_all.deb` on `main`.
+
+Verified on `.135` and webo1001: symlink + live STUN; LE preserved on webo1001; media OK.
+
 ## Open / next
 
-1. Deploy **6.5.0-23** to webo1001; smoke Directory contact add (empty org) + new tenant → LDAP OU; OU backfill if needed.
-2. Optional further WebRTC extensions now that 9005 works.
+1. Smoke Directory contact add (empty org) + new tenant → LDAP OU on webo1001; OU backfill if needed.
+2. Optional further WebRTC extensions.
 3. Optional: disable stock `certbot.timer` (use SAIL `le-renew.sh` only); curly quote in WebRTC callerid generator.
-4. Merge `feature/letsencrypt-apache-65018` to `main` after Brindley soak.
-5. Still open: `sark_includes` A/B/C; sail65-docs WebRTC page; deb prune policy; missing **6.5.0-16/17** debs if needed.
-   - **6.5.0-24:** `rtp.conf` → `sark_rtp.conf` symlink + `rtp.install.conf` in `debian/postinst` and `srkEnsureAsteriskPlatform.sh` (was copy-only; stock `rtp.conf` stayed active). Deb built; pending lab `.135` install verify before webo1001.
-6. Optional: pull/merge API upgrade on lab `.135` `/opt/sark65api_L12` when convenient.
+4. Still open: `sark_includes` A/B/C; sail65-docs WebRTC page; deb prune policy; missing **6.5.0-16/17** debs if needed.
+5. Optional: pull/merge API upgrade on lab `.135` `/opt/sark65api_L12` when convenient.
