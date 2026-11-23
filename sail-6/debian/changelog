@@ -1,3 +1,12 @@
+sail (6.5.0-26) UNRELEASED; urgency=medium
+
+  - Let's Encrypt: mask stock certbot.timer in postinst (SAIL cron
+    le-renew.sh owns renew + Shorewall :80 open/close + apply); unmask
+    on package remove. le-renew.sh no-ops when le-domain is absent
+    (local/snakeoil/vendor cert installs).
+
+ -- KoKoSoft <admin@aelintra.com>  Mon, 23 Nov 2026 23:50:00 +0000
+
 sail (6.5.0-25) UNRELEASED; urgency=medium
 
   - Trunks/Extensions list: permanent AOR contacts (static SIP trunks)

@@ -20,3 +20,8 @@ rm -f /etc/fail2ban/jail.d/sail-mail.conf
 [ -e /etc/sudoers.d/sarkrssh ] && rm -rf /etc/sudoers.d/sarkrssh 
 
 systemctl disable  debsetlan
+
+# On package remove only: unmask stock certbot.timer (do not re-enable — leave to admin).
+if [ "$1" = "remove" ] && command -v systemctl >/dev/null 2>&1; then
+	systemctl unmask certbot.timer 2>/dev/null || true
+fi

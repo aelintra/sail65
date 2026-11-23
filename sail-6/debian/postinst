@@ -146,6 +146,15 @@ chmod +x /opt/sark/scripts/apply-active-cert.sh \
 	/opt/sark/scripts/le-port80-open.sh \
 	/opt/sark/scripts/le-port80-close.sh 2>/dev/null || true
 
+# SAIL owns LE renew via cron le-renew.sh (open :80 + apply). Stock certbot.timer
+# does neither and can fail HTTP-01 when Shorewall keeps public tcp/80 closed;
+# also unwanted when the site uses snakeoil/custom/vendor certs. Mask so certbot
+# package upgrades cannot re-enable it.
+if command -v systemctl >/dev/null 2>&1; then
+	systemctl disable --now certbot.timer 2>/dev/null || true
+	systemctl mask certbot.timer 2>/dev/null || true
+fi
+
 # Migrate legacy paste-installed customer cert into custom/ so apply-active-cert owns it
 if [ -f /etc/ssl/certs/ssl-cert-sark-customer.pem ] && [ ! -L /etc/ssl/certs/ssl-cert-sark-customer.pem ] \
 	&& [ ! -f /opt/sark/etc/ssl/custom/fullchain.pem ]; then
