@@ -102,7 +102,7 @@ Realm note for clients: leave Realm blank or use **`vcloudpbx.com`** (Asterisk c
 1. **Wait:** WebPhone/SPA team fix so WSS uses configured proxy host (`webo1001…`), not tenant `dhbm8x.pbx3.com`.
 2. After client fix: retest 9005 register + call; then consider further WebRTC extensions.
 3. Deploy **6.5.0-23** to webo1001; smoke Directory contact add (empty org) + new tenant → LDAP OU; OU backfill if needed.
-4. Optional: disable stock `certbot.timer` (use SAIL `le-renew.sh` only).
+4. ~~Optional: disable stock `certbot.timer`~~ **done** in **6.5.0-26** — see [2026-11-23-certbot-timer-mask-handoff.md](./2026-11-23-certbot-timer-mask-handoff.md).
 5. Optional: fix curly quote in WebRTC callerid generator template.
 6. Still open: `sark_includes` A/B/C; `sark_rtp.conf` STUN; sail65-docs WebRTC page; decide deb prune policy; merge feature branch when soak OK.
 7. Optional: locate/rebuild missing **6.5.0-16** / **17** debs if anyone still needs them.

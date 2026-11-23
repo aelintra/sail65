@@ -71,6 +71,6 @@ Verified on `.135` and webo1001: symlink + live STUN; LE preserved on webo1001; 
 
 1. Smoke Directory contact add (empty org) + new tenant → LDAP OU on webo1001; OU backfill if needed.
 2. Optional further WebRTC extensions.
-3. Optional: disable stock `certbot.timer` (use SAIL `le-renew.sh` only); curly quote in WebRTC callerid generator.
+3. ~~Optional: disable stock `certbot.timer`~~ **done** in **6.5.0-26** — see [2026-11-23-certbot-timer-mask-handoff.md](./2026-11-23-certbot-timer-mask-handoff.md); curly quote in WebRTC callerid generator.
 4. Still open: `sark_includes` A/B/C; sail65-docs WebRTC page; deb prune policy; missing **6.5.0-16/17** debs if needed.
 5. Optional: pull/merge API upgrade on lab `.135` `/opt/sark65api_L12` when convenient.
