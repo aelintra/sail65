@@ -37,6 +37,8 @@ Deb: `sail_6.5.0-25_all.deb` on `main` (built on `.78`).
 
 ## Open / next
 
-1. webo1001: `dpkg -i sail_6.5.0-25_all.deb` when convenient (hot-copy already live).
-2. LDAP Directory/tenant OU smoke on webo1001 (carried from prior handoff).
-3. Optional: upgrade `.135` to **-25**; API pull on lab; `sark_includes`; docs; deb prune; missing **-16/17** debs.
+Superseded for deploy by evening session **6.5.0-26** — see [2026-11-23-certbot-timer-mask-handoff.md](./2026-11-23-certbot-timer-mask-handoff.md). Install **-26** (includes this trunk RTT fix).
+
+1. ~~webo1001: dpkg **-25**~~ → use **-26** when convenient.
+2. LDAP Directory/tenant OU smoke on webo1001 (carried).
+3. Optional: upgrade `.135`; API pull on lab; `sark_includes`; docs; deb prune; missing **-16/17** debs.

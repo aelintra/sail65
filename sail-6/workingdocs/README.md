@@ -10,14 +10,15 @@ Do **not** store secrets (sudo passwords, AMI secrets, customer credentials) her
 |------|------|--------|
 | **Deb builder** | `192.168.1.78` (`deb11-1`) | SSH `tech@192.168.1.78`. Repos under `~/Git/` (sail65, etc.). Build: `cd ~/Git/sail65/sail-6 && debuild --no-lintian -us -uc -b` → `~/Git/sail65/sail_*_all.deb`. Cannot push to GitHub over HTTPS; push from Mac. Mac has no `rsync` — sync with `tar`/`scp`. |
 | Lab / customer rebuild | `192.168.1.130` (`adler`) | SSH `tech@192.168.1.130`. **Passwordless sudo** (`sudo -n`). Target **sail 6.5.0-17**. Kernel **6.8.0-149** (CVE-2026-98432 patched). |
-| Brindley lab | `192.168.1.135` (`ubu2204arm`) | SSH `tech@192.168.1.135`. **Passwordless sudo**. sail **6.5.0-24** (rtp → sark_rtp; STUN live). No public :80. |
-| Brindley EC2 | `webo1001.terminator.cloud` (`99.80.166.113`) | Key `Brindley-Webo.pem`; SSH as `ubuntu`. Hot-patched **-25** trunk RTT (package still **-24** until dpkg); prod LE YE2; Shorewall + **SG 8089 open**; WebRTC **9005** OK; rtp → sark_rtp. |
+| Brindley lab | `192.168.1.135` (`ubu2204arm`) | SSH `tech@192.168.1.135`. **Passwordless sudo**. sail **6.5.0-24** (rtp → sark_rtp; STUN live). No public :80. Optional upgrade to **-26**. |
+| Brindley EC2 | `webo1001.terminator.cloud` (`99.80.166.113`) | Key `Brindley-Webo.pem`; SSH as `ubuntu`. Package **-24**; trunk RTT hot-patch; **`certbot.timer` masked** live; prod LE YE2; Shorewall + **SG 8089 open**; WebRTC **9005** OK. Install **-26** when convenient. |
 | Customer test VM | `192.168.9.4` (`adler-pbx-02`) | SSH `pbxadmin@192.168.9.4` (key). Sudo **requires password**. |
 | Other test | `192.168.1.12` (`iitac2404`) | SSH `tech@192.168.1.12`. |
 
 ## Latest handoff
 
-- [2026-11-23-trunk-static-contact-rtt-handoff.md](./2026-11-23-trunk-static-contact-rtt-handoff.md) — Session closed: **6.5.0-25** on `main` (static trunk RTT/IP); webo1001 UI verified (hot-patch; dpkg when convenient).
+- [2026-11-23-certbot-timer-mask-handoff.md](./2026-11-23-certbot-timer-mask-handoff.md) — Session closed: **6.5.0-26** on `main` (mask `certbot.timer`; `le-renew.sh` no-op without LE); webo1001 timer masked live.
+- [2026-11-23-trunk-static-contact-rtt-handoff.md](./2026-11-23-trunk-static-contact-rtt-handoff.md) — **6.5.0-25** static trunk RTT/IP; webo1001 UI verified (superseded for deploy by **-26**).
 - [2026-11-19-lab23-webrtc-dependabot-handoff.md](./2026-11-19-lab23-webrtc-dependabot-handoff.md) — Session closed: **6.5.0-24** on `.135` + webo1001 (rtp→sark_rtp, media OK); LE on `main`; 9005 OK; no F2B for SSL scanner noise; sark65api Dependabot merged.
 - [2026-11-18-ldap-asterisk-tls-handoff.md](./2026-11-18-ldap-asterisk-tls-handoff.md) — LDAP **6.5.0-23**; webo1001 WSS/9005 server-side; admin-password forensics; WebPhone WSS host bug (since fixed).
 - [2026-11-17-ldap-contact-and-tenant-ou-fixes.md](./2026-11-17-ldap-contact-and-tenant-ou-fixes.md) — LDAP fix detail / OU backfill snippet.
@@ -31,8 +32,8 @@ Do **not** store secrets (sudo passwords, AMI secrets, customer credentials) her
 
 ## Open TODOs
 
-- webo1001: `dpkg -i sail_6.5.0-25_all.deb` when convenient; smoke Directory/tenant OU (LDAP); optional more WebRTC extensions; optional disable stock `certbot.timer`.
-- Optional: upgrade `.135` to **6.5.0-25**; `/opt/sark65api_L12` on lab hosts per install-doc upgrade section.
-- `feature/letsencrypt-apache-65018` merged to `main` (through **6.5.0-24**; trunk fix is **-25**).
+- webo1001: `dpkg -i sail_6.5.0-26_all.deb` when convenient (timer already masked; includes trunk RTT); smoke Directory/tenant OU (LDAP); optional more WebRTC extensions.
+- Optional: upgrade `.135` to **6.5.0-26**; `/opt/sark65api_L12` on lab hosts per install-doc upgrade section.
+- `feature/letsencrypt-apache-65018` merged to `main` (through **6.5.0-24**; trunk RTT **-25**; certbot mask **-26**).
 - [2026-10-26-todo-harden-audio-aliases.md](./2026-10-26-todo-harden-audio-aliases.md) — **done** in 6.5.0-16 (aliases + Console gate); kept for history.
 - [2026-10-26-todo-apache-sark-includes.md](./2026-10-26-todo-apache-sark-includes.md) — finish or retire `sarkServerName` / `preventIpAccess` includes (never wired into Apache).

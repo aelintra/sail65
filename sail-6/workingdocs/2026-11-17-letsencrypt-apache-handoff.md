@@ -73,7 +73,7 @@ Panel privileged ops → **srk-ua-helper** (`request_syscmd`).
 2. ~~SG **8089**~~ **done** (ops confirmed 18/11; Shorewall already open).
 3. Deploy **6.5.0-23** (LDAP) — see [2026-11-18 handoff](./2026-11-18-ldap-asterisk-tls-handoff.md).
 4. Create WebRTC extensions → Commit.
-5. Optional: disable stock `certbot.timer` so only SAIL `le-renew.sh` (open/close + apply) renews.
+5. ~~Optional: disable stock `certbot.timer`~~ **done** in **6.5.0-26** (postinst mask + `le-renew.sh` no-op without `le-domain`); webo1001 masked live 23/11 — see [2026-11-23-certbot-timer-mask-handoff.md](./2026-11-23-certbot-timer-mask-handoff.md).
 6. Still open: `sark_includes` A/B/C; `sark_rtp.conf` STUN for remote media; sail65-docs WebRTC page.
 7. Merge feature branch to `main` when Brindley soak is OK.
 
