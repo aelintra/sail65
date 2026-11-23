@@ -1,6 +1,6 @@
-# Session handoff — 2026-11-23
+# Session handoff — 2026-11-23 (closed)
 
-Trunks list missing latency/IP for **static AOR** SIP trunks (Magrathea on webo1001). Fixed in **6.5.0-25**; verified on webo1001 before package.
+Trunks list missing latency/IP for **static AOR** SIP trunks (Magrathea on webo1001). Fixed as **6.5.0-25**, verified on webo1001, packaged and pushed to **`main`** (`3c0332b`).
 
 Prior: [2026-11-19-lab23-webrtc-dependabot-handoff.md](./2026-11-19-lab23-webrtc-dependabot-handoff.md).
 
@@ -11,7 +11,7 @@ Prior: [2026-11-19-lab23-webrtc-dependabot-handoff.md](./2026-11-19-lab23-webrtc
 - AMI `PJSIPShowContacts`: only **dynamic** contacts (e.g. 9003/9004/9005). Permanent Magrathea contact **absent** → trunks panel State/IP **Unknown**.
 - Panel reads AMI only (`get_pjsip_array` → `RoundtripUsec`).
 
-## Fix (6.5.0-25)
+## Fix (6.5.0-25) — done
 
 | File | Change |
 |------|--------|
@@ -20,20 +20,23 @@ Prior: [2026-11-19-lab23-webrtc-dependabot-handoff.md](./2026-11-19-lab23-webrtc
 | Extensions | Unchanged (`fallback` default false) — no N× AMI regression. |
 | Registered trunks | Unchanged happy path (already in Contacts). |
 
-## Verify (webo1001)
+Deb: `sail_6.5.0-25_all.deb` on `main` (built on `.78`).
 
-- CLI smoke with `srkDbClass` + `get_pjsip_array(..., true)` → host/IP + `OK (N ms)`.
+## Verify (webo1001) — done
+
+- CLI smoke (`srkDbClass` + `get_pjsip_array(..., true)`) → IP + `OK (N ms)`.
 - Trunks UI: MagratheaCLI latency + IP (e.g. `87.238.73.137` from Match).
 
-## Deploy / hosts
+## Deploy / hosts (session end)
 
-| Host | Notes |
-|------|--------|
-| webo1001 | Hot-copied PHP during diagnose; install **6.5.0-25** deb for clean package state. |
-| `.135` | Optional upgrade when convenient. |
-| `main` | Release commit + `sail_6.5.0-25_all.deb`. |
+| Host | sail | Notes |
+|------|------|--------|
+| webo1001 | **hot-patched** PHP (= `-25` behaviour); package still **-24** until `dpkg -i` | UI confirmed OK. Install **6.5.0-25** when convenient for clean package state. |
+| `.135` | **6.5.0-24** | Optional upgrade to **-25**. |
+| `main` | **6.5.0-25** | `3c0332b` + deb. |
 
 ## Open / next
 
-- LDAP Directory/tenant OU smoke on webo1001 (still from prior handoff).
-- Optional: API pull on lab `.135`; `sark_includes`; docs; deb prune; missing **-16/17** debs.
+1. webo1001: `dpkg -i sail_6.5.0-25_all.deb` when convenient (hot-copy already live).
+2. LDAP Directory/tenant OU smoke on webo1001 (carried from prior handoff).
+3. Optional: upgrade `.135` to **-25**; API pull on lab; `sark_includes`; docs; deb prune; missing **-16/17** debs.
