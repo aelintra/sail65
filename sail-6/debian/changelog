@@ -1,3 +1,12 @@
+sail (6.5.0-25) UNRELEASED; urgency=medium
+
+  - Trunks/Extensions list: permanent AOR contacts (static SIP trunks)
+    missing from AMI PJSIPShowContacts fall back to PJSIPShowEndpoint
+    ContactStatusDetail for RTT; IP column prefers Identify Match when
+    the contact URI is a hostname (sip:host).
+
+ -- KoKoSoft <admin@aelintra.com>  Mon, 23 Nov 2026 22:10:00 +0000
+
 sail (6.5.0-24) UNRELEASED; urgency=medium
 
   - Asterisk: activate sark_rtp.conf on install/restore — move stock

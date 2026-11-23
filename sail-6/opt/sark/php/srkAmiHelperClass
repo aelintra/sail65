@@ -109,9 +109,15 @@ public function get_iax_array() {
      * Get array for PJSIP endpoints used by list panels (extensions/trunks).
      * Uses one PJSIPShowContacts call — that returns URI / UserAgent /
      * RoundtripUsec. PJSIPShowEndpoints does not. Avoids N× PJSIPShowEndpoint.
+     *
+     * Permanent AOR contacts (static trunks, contact=sip:host) often appear in
+     * CLI "pjsip show contacts" but are omitted from AMI PJSIPShowContacts.
+     * When $endpoint_fallback is true (trunks list), missing endpoints fall
+     * back to PJSIPShowEndpoint ContactStatusDetail. Leave false for
+     * extensions so unregistered peers do not revive N× AMI calls.
      * @return array|bool
      */
-public function get_pjsip_array($endpoints) {
+public function get_pjsip_array($endpoints, $endpoint_fallback = false) {
 
 	$this->helper = new helper;
 	if (empty($endpoints)) {
@@ -130,6 +136,12 @@ public function get_pjsip_array($endpoints) {
 		if (isset($extrow['technology']) && $extrow['technology'] != 'SIP') {
 			continue;
 		}
+		// Trunks list includes DiD/CLID/Class rows — not PJSIP endpoints
+		if (isset($extrow['carriertype']) &&
+			($extrow['carriertype'] == 'DiD' || $extrow['carriertype'] == 'CLID'
+				|| $extrow['carriertype'] == 'Class')) {
+			continue;
+		}
 		$wanted[$extrow['pkey']] = true;
 	}
 	if (empty($wanted)) {
@@ -140,17 +152,38 @@ public function get_pjsip_array($endpoints) {
 		return false;
 	}
 
+	$sip_peers = array();
 	$amisiprets = $this->amiHdle->getPjsipContacts();
-	$this->amiHdle->logout();
-
-	if ($amisiprets === false || $amisiprets === '' ||
-		strpos($amisiprets, 'Response: Error') !== false) {
+	if ($amisiprets !== false && $amisiprets !== '' &&
+		strpos($amisiprets, 'Response: Error') === false) {
+		$sip_peers = $this->build_pjsip_contacts_array($amisiprets, $wanted);
+	} else {
 		$this->helper->logit(__FUNCTION__ . " contacts empty/error", 5);
-		return array();
 	}
 
-	$sip_peers = $this->build_pjsip_contacts_array($amisiprets, $wanted);
-	$this->helper->logit(__FUNCTION__ . " peers=" . count($sip_peers), 5);
+	// Static trunk contacts missing from PJSIPShowContacts (trunks panel only)
+	$fallback = 0;
+	if ($endpoint_fallback) {
+		foreach (array_keys($wanted) as $ep) {
+			if (isset($sip_peers[$ep])) {
+				continue;
+			}
+			$detail = $this->amiHdle->getPjsipPeer($ep);
+			if ($detail === false || $detail === '' ||
+				strpos($detail, 'Response: Error') !== false) {
+				continue;
+			}
+			$filled = $this->build_pjsip_contact_from_endpoint($detail, $ep);
+			if (!empty($filled)) {
+				$sip_peers[$ep] = $filled;
+				$fallback++;
+			}
+		}
+	}
+
+	$this->amiHdle->logout();
+	$this->helper->logit(__FUNCTION__ . " peers=" . count($sip_peers)
+		. " fallback=" . $fallback, 5);
 	return $sip_peers;
 }
 
@@ -180,6 +213,7 @@ public function get_pjsip_endpoint($endpoint) {
  
 public function getIpAddressFromPeer($key,$peers) {
 
+		$host = '';
 		$uri = '';
 		if (!empty($peers[$key]['URI'])) {
 			$uri = $peers[$key]['URI'];
@@ -187,17 +221,28 @@ public function getIpAddressFromPeer($key,$peers) {
 			$uri = $peers[$key]['Uri'];
 		}
 		if ($uri !== '') {
-			preg_match("/^sip:.*@(.*):/",$uri,$matches);
-			if (!empty($matches[1])) {
-				return $matches[1];
+			// sip:user@host:port;params  OR  sip:host  OR  sip:host:port
+			if (preg_match('/^sips?:(?:[^@;>\s]+@)?([^:;>\s]+)/i', $uri, $matches)) {
+				if (!empty($matches[1])) {
+					$host = $matches[1];
+					// Prefer a real IP in the URI (registered peers)
+					if (filter_var($host, FILTER_VALIDATE_IP)) {
+						return $host;
+					}
+				}
 			}
 		}
+		// Static trunks often use sip:hostname — use Identify Match IPs when present
 		if (!empty($peers [$key]['Match'])) {
-			$match_parts = explode('/',$peers [$key]['Match']);
-			if (!empty($match_parts[0])) {
+			$first = trim(explode(',', $peers[$key]['Match'])[0]);
+			$match_parts = explode('/', $first);
+			if (!empty($match_parts[0]) && filter_var($match_parts[0], FILTER_VALIDATE_IP)) {
 				return $match_parts[0];
 			}
-		}						
+		}
+		if ($host !== '') {
+			return $host;
+		}
 
 		return 'Unknown';
 
@@ -214,8 +259,9 @@ public function getIpAddressFromPeer($key,$peers) {
 public function getLatencyFromPeer($key,$peers) {
 
 		if (!empty($peers [$key]['RoundtripUsec'])) {
-			if (is_numeric($peers [$key]['RoundtripUsec'])) {
-				return "OK (" . round($peers [$key]['RoundtripUsec']/1000) . " ms)";	
+			$rtt = trim($peers [$key]['RoundtripUsec']);
+			if (is_numeric($rtt)) {
+				return "OK (" . round($rtt/1000) . " ms)";	
 			}
 		}
  
@@ -536,6 +582,77 @@ private function build_pjsip_contacts_array($amirets, $wanted = array()) {
 		$cur[$couplet[0]] = $couplet[1];
 	}
 	return $peer_array;
+}
+
+/**
+ * Build a contacts-shaped peer row from PJSIPShowEndpoint output.
+ * Uses ContactStatusDetail (URI / Status / RoundtripUsec); optional
+ * IdentifyDetail Match as IP fallback for getIpAddressFromPeer.
+ */
+private function build_pjsip_contact_from_endpoint($amirets, $endpoint) {
+	$best = array();
+	$match = '';
+	$cur = array();
+	$event = '';
+	$lines = explode("\r\n", $amirets);
+	$lines[] = 'Event: EndpointDetailComplete';
+
+	foreach ($lines as $line) {
+		if (strpos($line, 'Event: ') === 0) {
+			if ($event === 'ContactStatusDetail') {
+				$ep = $endpoint;
+				if (!empty($cur['EndpointName'])) {
+					$ep = $cur['EndpointName'];
+				} else if (!empty($cur['AOR'])) {
+					$ep = $cur['AOR'];
+				}
+				if ($ep === $endpoint) {
+					$row = array(
+						'Endpoint' => $endpoint,
+						'URI' => isset($cur['URI']) ? $cur['URI'] : (isset($cur['Uri']) ? $cur['Uri'] : ''),
+						'Status' => isset($cur['Status']) ? $cur['Status'] : '',
+						'RoundtripUsec' => isset($cur['RoundtripUsec']) ? trim($cur['RoundtripUsec']) : '',
+						'UserAgent' => isset($cur['UserAgent']) ? $cur['UserAgent'] : '',
+					);
+					if ($row['URI'] !== '') {
+						$row['Uri'] = $row['URI'];
+					}
+					$prefer = empty($best)
+						|| (isset($row['Status']) && $row['Status'] === 'Reachable')
+						|| (is_numeric($row['RoundtripUsec'])
+							&& (!isset($best['RoundtripUsec']) || !is_numeric($best['RoundtripUsec'])));
+					if ($prefer) {
+						$best = $row;
+					}
+				}
+			} else if ($event === 'IdentifyDetail' && $match === '') {
+				if (!empty($cur['Match'])) {
+					$match = $cur['Match'];
+				}
+			}
+			$event = substr($line, 7);
+			$cur = array();
+			continue;
+		}
+		if (strpos($line, ': ') === false) {
+			continue;
+		}
+		$couplet = explode(': ', $line, 2);
+		if ($couplet[0] === 'Event' || $couplet[0] === 'ListItems'
+			|| $couplet[0] === 'EventList' || $couplet[0] === 'Response'
+			|| $couplet[0] === 'Message') {
+			continue;
+		}
+		$cur[$couplet[0]] = $couplet[1];
+	}
+
+	if (empty($best)) {
+		return array();
+	}
+	if ($match !== '' && empty($best['Match'])) {
+		$best['Match'] = $match;
+	}
+	return $best;
 }
 
 

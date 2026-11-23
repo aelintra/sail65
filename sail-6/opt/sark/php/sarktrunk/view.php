@@ -155,7 +155,7 @@ private function showMain() {
 	$iax = True;
 	if ( $this->astrunning ) {	
 		$this->amiHelper = new amiHelper();
-		$this->sip_peers = $this->amiHelper->get_pjsip_array($rows);
+		$this->sip_peers = $this->amiHelper->get_pjsip_array($rows, true);
 		$this->iax_peers = $this->amiHelper->get_iax_array();		
 	}
 	else {
