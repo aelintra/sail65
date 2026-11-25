@@ -1,3 +1,11 @@
+sail (6.5.0-27) UNRELEASED; urgency=medium
+
+  - Multi-tenant UI: when CLUSTER is ON, force DataTables Tenant
+    column visible so bStateSave cannot keep it hidden after Tenant
+    support is enabled (srkPerms; greetings/callback panels).
+
+ -- KoKoSoft <admin@aelintra.com>  Wed, 25 Nov 2026 13:00:00 +0000
+
 sail (6.5.0-26) UNRELEASED; urgency=medium
 
   - Let's Encrypt: mask stock certbot.timer in postinst (SAIL cron

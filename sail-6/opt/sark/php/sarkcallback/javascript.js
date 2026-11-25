@@ -102,6 +102,11 @@
 			mytable.column( 1 ).visible( false );
 			$('#cluster').hide();
 			$('.cluster').hide();		
+		} else {
+			var mytable = $('#callbacktable').DataTable(); 
+			mytable.column( 1 ).visible( true );
+			$('#cluster').show();
+			$('.cluster').show();
 		};  
 
  });

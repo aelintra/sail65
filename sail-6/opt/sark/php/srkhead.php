@@ -86,6 +86,11 @@ function srkPerms(dtab) {
       mytable.columns('.cluster').visible(false);
       $('#cluster').hide();
       $('.cluster').hide();
+    } else {
+      // Force show so DataTables bStateSave cannot keep Tenant hidden after CLUSTER is turned ON
+      mytable.columns('.cluster').visible(true);
+      $('#cluster').show();
+      $('.cluster').show();
     };
     if ( $('#perms').val() == 'view' ) {    
       mytable.columns('.delcol').visible(false);
